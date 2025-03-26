@@ -1,4 +1,3 @@
-import csv
 import sqlite3 
 
 liaison = sqlite3.connect("prenoms.db")
