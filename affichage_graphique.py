@@ -1,120 +1,75 @@
-import tkinter as tk
-from tkinter import ttk
+import customtkinter as ctk  # Make sure to install it with `pip install customtkinter`
 
-# Create the main window
-root = tk.Tk()
-root.title("Tkinter Dark Theme")
+# Configure CustomTkinter appearance
+ctk.set_appearance_mode("dark")  # Light, Dark, or System
+ctk.set_default_color_theme("dark-blue")  # You can change to "blue" or "green"
+
+# Main App Window
+root = ctk.CTk()
 root.geometry("600x400")
-root.configure(bg="#2b2b2b")  # Dark background
-
-# Apply a dark theme using ttk styles
-style = ttk.Style()
-style.theme_use("clam")  # Use a theme that allows custom styles
-
-# Define custom colors
-bg_color = "#2b2b2b"  # Main background
-frame_color = "#3c3f41"  # Frame background
-text_color = "white"
-button_bg = "#444"
-button_hover = "#666"
-
-# Configure frame and label styles
-style.configure("TFrame", background=bg_color)
-style.configure("TLabel", background=frame_color, foreground=text_color, padding=10)
-style.configure("TEntry", fieldbackground="#444", foreground=text_color)
-
-# Configure button styles (prevent white highlight)
-style.configure(
-    "TButton",
-    background=button_bg,
-    foreground=text_color,
-    borderwidth=1,
-    focuscolor=button_bg,  # Prevents white focus
-    relief="flat"
-)
-style.map("TButton", 
-    background=[("active", button_hover), ("pressed", "#555")],
-    foreground=[("disabled", "gray")]
-)
-
-# Configure Checkbutton & Radiobutton styles (prevent white selection)
-style.configure(
-    "TCheckbutton",
-    background=bg_color,
-    foreground=text_color,
-    indicatorcolor=button_bg,
-    focuscolor=button_bg  # Prevents highlight
-)
-style.map("TCheckbutton",
-    background=[("active", button_hover)],
-    foreground=[("selected", text_color)]
-)
-
-style.configure(
-    "TRadiobutton",
-    background=bg_color,
-    foreground=text_color,
-    focuscolor=button_bg  # Prevents highlight
-)
-style.map("TRadiobutton",
-    background=[("active", button_hover)],
-    foreground=[("selected", text_color)]
-)
+root.title("CustomTkinter Dark UI")
 
 # Sidebar
-sidebar = ttk.Frame(root, width=150, style="TFrame")
+sidebar = ctk.CTkFrame(root, width=150, corner_radius=20)
 sidebar.pack(side="left", fill="y", padx=10, pady=10)
 
-ttk.Button(sidebar, text="Button 1", style="TButton").pack(pady=10)
-ttk.Button(sidebar, text="Button 2", style="TButton").pack(pady=10)
-ttk.Button(sidebar, text="Button 3", style="TButton").pack(pady=10)
+ctk.CTkButton(sidebar, text="CTkButton 1", corner_radius=20).pack(pady=10)
+ctk.CTkButton(sidebar, text="CTkButton 2", corner_radius=20).pack(pady=10)
+ctk.CTkButton(sidebar, text="CTkButton 3", corner_radius=20).pack(pady=10)
 
 # Main content area
-main_frame = ttk.Frame(root, style="TFrame")
+main_frame = ctk.CTkFrame(root, corner_radius=20)
 main_frame.pack(expand=True, fill="both", padx=10, pady=10)
 
-label = ttk.Label(main_frame, text="Label: Lorem ipsum dolor sit amet...", style="TLabel")
-label.pack(pady=10)
+label = ctk.CTkLabel(main_frame, text="CTkLabel: Lorem ipsum dolor sit...", fg_color=("gray20", "gray30"), corner_radius=10)
+label.pack(pady=10, fill="x", padx=10)
 
 # Sliders
-slider1 = ttk.Scale(main_frame, from_=0, to=100)
-slider1.pack(pady=5, fill="x")
+slider1 = ctk.CTkSlider(main_frame, from_=0, to=100)
+slider1.pack(pady=5, fill="x", padx=10)
 
-slider2 = ttk.Scale(main_frame, from_=0, to=100)
-slider2.pack(pady=5, fill="x")
+slider2 = ctk.CTkSlider(main_frame, from_=0, to=100)
+slider2.pack(pady=5, fill="x", padx=10)
 
 # Checkboxes
-checkbox1 = ttk.Checkbutton(main_frame, text="Disabled CheckBox", state="disabled", style="TCheckbutton")
+checkbox1 = ctk.CTkCheckBox(main_frame, text="CheckBox Disabled", state="disabled", corner_radius=10)
 checkbox1.pack(pady=5)
 
-checkbox2 = ttk.Checkbutton(main_frame, text="CheckBox", style="TCheckbutton")
+checkbox2 = ctk.CTkCheckBox(main_frame, text="CTkCheckBox", corner_radius=10)
 checkbox2.pack(pady=5)
 
-# Radio buttons
-# Variable to store selected radio button value
-selected_radio = tk.StringVar(value="Option1")  # Default value
+# Radio Buttons (Only one can be selected)
+selected_radio = ctk.StringVar(value="Option1")
 
-# Radio buttons (grouped by using the same variable)
-radio1 = ttk.Radiobutton(main_frame, text="Option 1", variable=selected_radio, value="Option1", style="TRadiobutton")
+radio_frame = ctk.CTkFrame(main_frame, corner_radius=10)
+radio_frame.pack(pady=10)
+
+radio1 = ctk.CTkRadioButton(radio_frame, text="CTkRadioButton 1", variable=selected_radio, value="Option1", corner_radius=10)
 radio1.pack(anchor="w")
 
-radio2 = ttk.Radiobutton(main_frame, text="Option 2", variable=selected_radio, value="Option2", style="TRadiobutton")
+radio2 = ctk.CTkRadioButton(radio_frame, text="CTkRadioButton 2", variable=selected_radio, value="Option2", corner_radius=10)
 radio2.pack(anchor="w")
 
-radio3 = ttk.Radiobutton(main_frame, text="Option 3", variable=selected_radio, value="Option3", style="TRadiobutton")
+radio3 = ctk.CTkRadioButton(radio_frame, text="CTkRadioButton 3", variable=selected_radio, value="Option3", corner_radius=10)
 radio3.pack(anchor="w")
 
-
 # Entry field
-entry = ttk.Entry(main_frame)
-entry.pack(pady=10, fill="x")
+entry = ctk.CTkEntry(main_frame, placeholder_text="Enter text...", corner_radius=20)
+entry.pack(pady=10, fill="x", padx=10)
 
 # Buttons
-button1 = ttk.Button(main_frame, text="Button", style="TButton")
+button1 = ctk.CTkButton(main_frame, text="CTkButton", corner_radius=20)
 button1.pack(pady=5)
 
-button2 = ttk.Button(main_frame, text="Disabled Button", state="disabled", style="TButton")
+button2 = ctk.CTkButton(main_frame, text="Disabled Button", state="disabled", corner_radius=20)
 button2.pack(pady=5)
+
+# Switches
+switch = ctk.CTkSwitch(main_frame, text="CTkSwitch", corner_radius=10)
+switch.pack(pady=5)
+
+dark_mode_switch = ctk.CTkSwitch(main_frame, text="Dark Mode", corner_radius=10, command=lambda: ctk.set_appearance_mode("dark" if dark_mode_switch.get() else "light"))
+dark_mode_switch.pack(pady=5)
 
 # Run the application
 root.mainloop()
