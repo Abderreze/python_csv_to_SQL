@@ -1,28 +1,22 @@
 import customtkinter as ctk  # Assurez-vous de l'installer avec `pip install customtkinter`
 import random
-# Configuration de l'apparence de CustomTkinter
-ctk.set_appearance_mode("dark")  # Modes disponibles : "light", "dark", ou "system"
-ctk.set_default_color_theme("dark-blue")  # Thèmes disponibles : "blue", "green", "dark-blue"
 
-# Création de la fenêtre principale
+# Configuration de l'apparence
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("dark-blue")
+
+# Fenêtre principale
 root = ctk.CTk()
-root.attributes('-zoomed', True)  # Ouvre la fenêtre en mode plein écran
-root.title("Prénomator 3000 EXTRA MAX V2.0")  # Titre de la fenêtre
+root.attributes('-zoomed', True)
+root.title("Prénomator 3000 EXTRA MAX V2.0")
 
-# Barre latérale (désactivée pour l'instant)
-"""
-sidebar = ctk.CTkFrame(root, width=150, corner_radius=20)
-sidebar.pack(side="left", fill="y", padx=10, pady=10)
-
-ctk.CTkButton(sidebar, text="Bouton 1", corner_radius=20).pack(pady=10)
-ctk.CTkButton(sidebar, text="Bouton 2", corner_radius=20).pack(pady=10)
-ctk.CTkButton(sidebar, text="Bouton 3", corner_radius=20).pack(pady=10)
-"""
-
-# Zone principale de contenu
+# Zone principale
 main_frame = ctk.CTkFrame(root, corner_radius=20)
 main_frame.pack(expand=True, fill="both", padx=10, pady=10)
 
+# Définition des limites de la zone des bulles
+ZONE_X_MIN, ZONE_Y_MIN = 100, 300   # Ajuste ces valeurs en fonction de la taille de ta fenêtre
+ZONE_X_MAX, ZONE_Y_MAX = 600, 500   # Zone basse de l'interface
 
 # Label principal
 label = ctk.CTkLabel(main_frame, text="Bienvenue sur le Prénomator 3000 !", fg_color=("gray20", "gray30"), corner_radius=10)
@@ -35,34 +29,37 @@ entry.pack(pady=10, fill="x", padx=10)
 
 # Fonction pour récupérer et stocker la valeur
 def valider_saisie():
-    prenom_saisi.set(entry.get())  # Met à jour la variable
-    switch2.configure(text=prenom_saisi.get())  # Met à jour le texte du switch
+    prenom_saisi.set(entry.get())
+    switch2.configure(text=prenom_saisi.get())
 
-bulles = [] #liste contenant toutes les bulles afin de ne pas les remplacer par une nouvelle bulle
+# Liste contenant toutes les bulles
+bulles = []
+
 # Fonction pour animer une bulle
-def animer_bulle(bulle, y, direction=1, n=5):
-    if 50 <= y <= 300:  # Limites pour éviter de sortir de l'écran
+def animer_bulle(bulle, y, direction=5):
+    if ZONE_Y_MIN <= y <= ZONE_Y_MAX:  # Restriction aux limites Y
         y += direction  # Monter ou descendre légèrement
         bulle.place_configure(y=y)
-        root.after(500, animer_bulle, bulle, y, direction * -1)  # Inverser le mouvement après 500ms
+        root.after(500, animer_bulle, bulle, y, direction * -1)
 
-# Fonction pour créer une bulle de texte
+# Fonction pour créer une bulle dans la zone définie
 def creer_bulle(texte):
-    # Créer un label avec un fond semi-transparent
+    # Générer une position uniquement dans la zone définie
+    x = random.randint(ZONE_X_MIN, ZONE_X_MAX)
+    y = random.randint(ZONE_Y_MIN, ZONE_Y_MAX)
+
+    # Créer la bulle
     bulle = ctk.CTkLabel(main_frame, text=texte, fg_color="gray30", corner_radius=20, padx=10, pady=5)
-    x = random.randint(50, 400)
-    y = random.randint(50, 300)
-    bulle.place(x=x, y=y)  # Position aléatoire
+    bulle.place(x=x, y=y)
 
-    bulles.append(bulle)  # Ajouter la bulle à la liste
-    animer_bulle(bulle, y)  # Lancer l'animation
+    bulles.append(bulle)  # Ajouter à la liste
+    animer_bulle(bulle, y)
 
+# Bouton pour créer une bulle
 button = ctk.CTkButton(main_frame, text="Créer une bulle", command=lambda: creer_bulle(prenom_saisi.get()))
 button.pack(pady=10)
 
-
-# Boutons interactifs
-
+# Bouton de validation
 valider_button = ctk.CTkButton(main_frame, text="Valider", corner_radius=20, command=valider_saisie)
 valider_button.pack(pady=10)
 
@@ -76,10 +73,8 @@ switch2.pack(pady=5)
 # Mode sombre et clair
 dark_mode_switch = ctk.CTkSwitch(main_frame, text="Dark mode", corner_radius=10, command=lambda: ctk.set_appearance_mode("dark" if dark_mode_switch.get() else "light"))
 dark_mode_switch.pack(pady=5)
-
-dark_mode_switch.configure(state="standard")
-dark_mode_switch.select()  # Active par défaut le mode sombre
-
+dark_mode_switch.select()
 
 # Lancer l'application
 root.mainloop()
+
