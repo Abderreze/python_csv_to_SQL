@@ -13,8 +13,11 @@ def afficher_graphique():
         label.config(image=photo)
         label.image = photo  # Nécessaire pour éviter la suppression par le garbage collector
 def on_enter(event):
-    user = entry.get()
-    entry.delete(0, tk.END)
+    sexe = dropdown.get()
+    if sexe:
+        afficher_graphique()
+    else:
+        print("Sélectionnez un sexe")
 def on_select(event):
     sexe = dropdown.get()
 # Création de la fenêtre principale
@@ -27,7 +30,7 @@ search = tk.StringVar()
 search_label = tk.Label(root, text="Entrez un prénom : ")
 entry = ttk.Entry(root, width=40, textvariable=search)
 entry.pack(pady=10)
-entry.bind('<Return>', on_enter)
+root.bind('<Return>', on_enter)
 options = [1, 2]
 dropdown = ttk.Combobox(values=options)
 dropdown.pack()
