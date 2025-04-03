@@ -28,12 +28,14 @@ def graphe_prenom(prenom: str, sexe: int):
         indice_max = y.index(max(y))
         x_max = x[indice_max]
         y_max = y[indice_max]
-
+        plt.axhline(y=y_max, color='r', linestyle='dotted', xmax=x_max/10)  # Ligne horizontale
+        plt.axvline(x=x_max, color='r', linestyle='dotted', ymax=(y_max+1)/2) 
+        plt.text(x_max, min(y), f"{int(x_max)}", color='red', fontsize=12, verticalalignment='bottom', horizontalalignment='right')
+        plt.text(x[0], y_max, f"{y_max}", color='red', fontsize=12, verticalalignment='bottom', horizontalalignment='right')
         plt.ylim(0, max(y) * 1.1)  # Ajuste pour un peu d'espace en haut
 #plt.scatter(x, y, color='r', label="Points")
         plt.plot(x, y, marker='o', linestyle='-', color=couleurs[0], label=prenom)
         plt.scatter(x_max, max(y), marker='x', color='r', label=f"Max en x={x_max}", zorder=3)
-        plt.text(x_max, max(y), f"année ={x_max}, nb naissance ={y_max}", verticalalignment='bottom', fontsize=14, color=couleurs[1])
         plt.xlabel("Années")
         plt.ylabel("Naissances")
         plt.title("Graphique avec abscisse du maximum")
@@ -43,6 +45,7 @@ def graphe_prenom(prenom: str, sexe: int):
         return True
     else:
         print("Ce prénom n'est pas dans la bdd")
+        curseur.execute("SELECT DISTINCT preusuel FROM prenoms WHERE ")
         return False
     liaison.close()
 if __name__ == '__main__':
