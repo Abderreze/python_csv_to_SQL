@@ -8,7 +8,7 @@ import csv
 pattern = r"^([^*]*)(?:\*)([^\/]*)(?:\/)\s*(\d{1})(\d{8})([\dA-Z]{0,5})\s*([A-Z\- '0-9,.°\(\)\/]{1,30})\s*(\D+\s*)?(\d{8})([\dA-Z]{5}|\s*)(.*)\s*$"
 
 def create_table():
-    connection = sqlite3.connect("prenoms.db")
+    connection = sqlite3.connect("Tables/prenoms.db")
     cursor = connection.cursor()
 
     # Si doutes concernant le type des données, n'en ayez aucun, tout est fait pour marcher dans tous
@@ -32,18 +32,15 @@ def create_table():
     connection.close()
 
 
-def gen_deces_csv(year):
+def gen_deces_csv(year, output_dir, input_dir):
 
-    connection = sqlite3.connect("prenoms.db")
-    cursor = connection.cursor()
-
-    with open(f"deces-{year}.csv", "w", newline='' ,encoding="UTF-8") as csvfile:
+    with open(f"{output_dir}/deces-{year}.csv", "w", newline='' ,encoding="UTF-8") as csvfile:
 
         csv_writer = csv.writer(csvfile)
         csv_writer.writerow(["nom", "prenom", "sexe", "date_naissance", "code_lieu_naissance", "commune_naissance", "pays_naissance", "date_deces", "code_lieu_deces", "numero_acte", "annee_deces"])
 
 
-        with open(f"deces-{year}.txt", "r", encoding="UTF-8") as f:
+        with open(f"{input_dir}/deces-{year}.txt", "r", encoding="UTF-8") as f:
 
             for line in f:
 
@@ -66,6 +63,24 @@ def gen_deces_csv(year):
 
                     csv_writer.writerow([last, first, sex, birth_date, birth_place_code, birth_place_name, birth_country, death_date, death_place_code, death_certificate_num, death_year])
 
+def import_csv_to_db(csv_filename, input_dir, db_dir):
+    connection = sqlite3.connect(f"{db_dir}/prenoms.db")
+    cursor = connection.cursor()
+
+    with open(f"{input_dir}/{csv_filename}", mode='r', encoding="UTF-8") as csvfile:
+        csv_reader = csv.reader(csvfile)
+        next(csv_reader)
+
+        for row in csv_reader:
+            cursor.execute("""
+                INSERT INTO deces (nom, prenom, sexe, date_naissance, code_lieu_naissance, commune_naissance, pays_naissance, date_deces, code_lieu_deces, numero_acte, annee_deces)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, row)
+
+    connection.commit()
+    connection.close()
+
 create_table()
-for i in range(2019, 2025):
-    gen_deces_csv(i)
+for year in range(2019, 2025):
+    gen_deces_csv(year, "Tables", "Tables")
+    import_csv_to_db(f"deces-{year}.csv", "Tables", "Tables")

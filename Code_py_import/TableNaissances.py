@@ -1,10 +1,10 @@
 import csv
 import sqlite3 
 
-liaison = sqlite3.connect("prenoms.db")
+liaison = sqlite3.connect("Tables/prenoms.db")
 curseur = liaison.cursor()
 
-with open("nat2022.csv", 'r', encoding='UTF-8') as f:
+with open("Tables/nat2022.csv", 'r', encoding='UTF-8') as f:
     csv_read = csv.reader(f, delimiter=';')
 
     curseur.execute("""
