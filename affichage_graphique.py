@@ -1,76 +1,80 @@
-import customtkinter as ctk  # Make sure to install it with `pip install customtkinter`
+import customtkinter as ctk  # Assurez-vous de l'installer avec `pip install customtkinter`
+import random
 
-# Configure CustomTkinter appearance
-ctk.set_appearance_mode("dark")  # Light, Dark, or System
-ctk.set_default_color_theme("dark-blue")  # You can change to "blue" or "green"
+# Configuration de l'apparence
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("dark-blue")
 
-# Main App Window
+# Fenêtre principale
 root = ctk.CTk()
-root.geometry("600x400")
-root.title("CustomTkinter Dark UI")
+root.attributes('-zoomed', True)
+root.title("Prénomator 3000 EXTRA MAX V2.0")
 
-# Sidebar
-sidebar = ctk.CTkFrame(root, width=150, corner_radius=20)
-sidebar.pack(side="left", fill="y", padx=10, pady=10)
-
-ctk.CTkButton(sidebar, text="CTkButton 1", corner_radius=20).pack(pady=10)
-ctk.CTkButton(sidebar, text="CTkButton 2", corner_radius=20).pack(pady=10)
-ctk.CTkButton(sidebar, text="CTkButton 3", corner_radius=20).pack(pady=10)
-
-# Main content area
+# Zone principale
 main_frame = ctk.CTkFrame(root, corner_radius=20)
 main_frame.pack(expand=True, fill="both", padx=10, pady=10)
 
-label = ctk.CTkLabel(main_frame, text="CTkLabel: Lorem ipsum dolor sit...", fg_color=("gray20", "gray30"), corner_radius=10)
+# Définition des limites de la zone des bulles
+ZONE_X_MIN, ZONE_Y_MIN = 100, 300   # Ajuste ces valeurs en fonction de la taille de ta fenêtre
+ZONE_X_MAX, ZONE_Y_MAX = 600, 500   # Zone basse de l'interface
+
+# Label principal
+label = ctk.CTkLabel(main_frame, text="Bienvenue sur le Prénomator 3000 !", fg_color=("gray20", "gray30"), corner_radius=10)
 label.pack(pady=10, fill="x", padx=10)
 
-# Sliders
-slider1 = ctk.CTkSlider(main_frame, from_=0, to=100)
-slider1.pack(pady=5, fill="x", padx=10)
-
-slider2 = ctk.CTkSlider(main_frame, from_=0, to=100)
-slider2.pack(pady=5, fill="x", padx=10)
-
-# Checkboxes
-checkbox1 = ctk.CTkCheckBox(main_frame, text="CheckBox Disabled", state="disabled", corner_radius=10)
-checkbox1.pack(pady=5)
-
-checkbox2 = ctk.CTkCheckBox(main_frame, text="CTkCheckBox", corner_radius=10)
-checkbox2.pack(pady=5)
-
-# Radio Buttons (Only one can be selected)
-selected_radio = ctk.StringVar(value="Option1")
-
-radio_frame = ctk.CTkFrame(main_frame, corner_radius=10)
-radio_frame.pack(pady=10)
-
-radio1 = ctk.CTkRadioButton(radio_frame, text="CTkRadioButton 1", variable=selected_radio, value="Option1", corner_radius=10)
-radio1.pack(anchor="w")
-
-radio2 = ctk.CTkRadioButton(radio_frame, text="CTkRadioButton 2", variable=selected_radio, value="Option2", corner_radius=10)
-radio2.pack(anchor="w")
-
-radio3 = ctk.CTkRadioButton(radio_frame, text="CTkRadioButton 3", variable=selected_radio, value="Option3", corner_radius=10)
-radio3.pack(anchor="w")
-
-# Entry field
-entry = ctk.CTkEntry(main_frame, placeholder_text="Enter text...", corner_radius=20)
+# Champ de saisie
+prenom_saisi = ctk.StringVar(value="Nom recherché")
+entry = ctk.CTkEntry(main_frame, placeholder_text="En savoir plus sur mon prénom...", corner_radius=20)
 entry.pack(pady=10, fill="x", padx=10)
 
-# Buttons
-button1 = ctk.CTkButton(main_frame, text="CTkButton", corner_radius=20)
-button1.pack(pady=5)
+# Fonction pour récupérer et stocker la valeur
+def valider_saisie():
+    prenom_saisi.set(entry.get())
+    switch2.configure(text=prenom_saisi.get())
 
-button2 = ctk.CTkButton(main_frame, text="Disabled Button", state="disabled", corner_radius=20)
-button2.pack(pady=5)
+# Liste contenant toutes les bulles
+bulles = []
 
-# Switches
-switch = ctk.CTkSwitch(main_frame, text="CTkSwitch", corner_radius=10)
+# Fonction pour animer une bulle
+def animer_bulle(bulle, y, direction=5):
+    if ZONE_Y_MIN <= y <= ZONE_Y_MAX:  # Restriction aux limites Y
+        y += direction  # Monter ou descendre légèrement
+        bulle.place_configure(y=y)
+        root.after(500, animer_bulle, bulle, y, direction * -1)
+
+# Fonction pour créer une bulle dans la zone définie
+def creer_bulle(texte):
+    # Générer une position uniquement dans la zone définie
+    x = random.randint(ZONE_X_MIN, ZONE_X_MAX)
+    y = random.randint(ZONE_Y_MIN, ZONE_Y_MAX)
+
+    # Créer la bulle
+    bulle = ctk.CTkLabel(main_frame, text=texte, fg_color="gray30", corner_radius=20, padx=10, pady=5)
+    bulle.place(x=x, y=y)
+
+    bulles.append(bulle)  # Ajouter à la liste
+    animer_bulle(bulle, y)
+
+# Bouton pour créer une bulle
+button = ctk.CTkButton(main_frame, text="Créer une bulle", command=lambda: creer_bulle(prenom_saisi.get()))
+button.pack(pady=10)
+
+# Bouton de validation
+valider_button = ctk.CTkButton(main_frame, text="Valider", corner_radius=20, command=valider_saisie)
+valider_button.pack(pady=10)
+
+# Interrupteurs (Switch)
+switch = ctk.CTkSwitch(main_frame, text="Activer une option", corner_radius=10)
 switch.pack(pady=5)
 
-dark_mode_switch = ctk.CTkSwitch(main_frame, text="Dark Mode", corner_radius=10, command=lambda: ctk.set_appearance_mode("dark" if dark_mode_switch.get() else "light"))
-dark_mode_switch.pack(pady=5)
+switch2 = ctk.CTkSwitch(main_frame, text=prenom_saisi.get(), corner_radius=10)
+switch2.pack(pady=5)
 
-# Run the application
+# Mode sombre et clair
+dark_mode_switch = ctk.CTkSwitch(main_frame, text="Dark mode", corner_radius=10, command=lambda: ctk.set_appearance_mode("dark" if dark_mode_switch.get() else "light"))
+dark_mode_switch.pack(pady=5)
+dark_mode_switch.select()
+
+# Lancer l'application
 root.mainloop()
 
