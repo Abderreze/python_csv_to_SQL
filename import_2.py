@@ -3,8 +3,6 @@ import sqlite3
 import csv
 
 # A NE TOUCHER EN AUCUN CAS CE PATTERN REGEX, IL MARCHE, C'EST TOUT CE QUI COMPTE (M'A PRIS DES HEURES)
-
-
 pattern = r"^([^*]*)(?:\*)([^\/]*)(?:\/)\s*(\d{1})(\d{8})([\dA-Z]{0,5})\s*([A-Z\- '0-9,.°\(\)\/]{1,30})\s*(\D+\s*)?(\d{8})([\dA-Z]{5}|\s*)(.*)\s*$"
 
 def create_table():
@@ -66,6 +64,24 @@ def gen_deces_csv(year):
 
                     csv_writer.writerow([last, first, sex, birth_date, birth_place_code, birth_place_name, birth_country, death_date, death_place_code, death_certificate_num, death_year])
 
+def import_csv_to_db(year):
+    connection = sqlite3.connect("prenoms.db")
+    cursor = connection.cursor()
+
+    with open(f"deces-{year}.csv", "r", encoding="UTF-8") as csvfile:
+        csv_reader = csv.reader(csvfile)
+        next(csv_reader)  # Skip the header row
+        
+        for row in csv_reader:
+            cursor.execute("""
+            INSERT INTO deces (nom, prenom, sexe, date_naissance, code_lieu_naissance, commune_naissance, pays_naissance, date_deces, code_lieu_deces, numero_acte, annee_deces)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, row)
+
+    connection.commit()
+    connection.close()
+
 create_table()
-for i in range(2019, 2025):
-    gen_deces_csv(i)
+for year in range(2019, 2025):
+    gen_deces_csv(year)
+    import_csv_to_db(year)
