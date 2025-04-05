@@ -5,6 +5,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from random import randint
 from PIL import Image, ImageTk
+
 from graphe_de_ton_prenom import graphe_prenom
 
 matplotlib.use('Agg')
@@ -30,8 +31,6 @@ label_info.pack(pady=5)
 
 stats_label = ctk.CTkLabel(frame_info, text="", anchor="w", justify="left", font=("Arial", 14))
 stats_label.pack(pady=10, fill="both", expand=False)
-
-
 
 # ▶️ Frame droite : Gère les prénoms + graph + image
 frame_graphiques = ctk.CTkFrame(main_frame, corner_radius=15)
@@ -67,6 +66,7 @@ def afficher_graphique(dico_prenoms_sexe):
             image_label.image = photo
         except Exception as e:
             print("Erreur chargement image :", e)
+
 
 def on_enter(event=None):
     prenom = search.get()
@@ -120,7 +120,7 @@ remove_button = ctk.CTkButton(
 
 remove_button.pack(side="left", padx=5)
 
-# 🔸 Image Graphique
+# 🔸 Image
 image_label = ctk.CTkLabel(frame_graphiques, text="")
 image_label.pack(pady=10)
 
@@ -145,7 +145,7 @@ def get_max_occurrence(prenom, genre_code):
 
         # Gestion spéciale pour l'année XXXX
         if str(annee).strip().upper() == "XXXX":
-            # On cherche la dernière année non-XXXX disponible
+            #Recherche de la dernière année non-XXXX disponible
             cursor.execute("""
                 SELECT annais, nombre
                 FROM prenoms
@@ -157,10 +157,10 @@ def get_max_occurrence(prenom, genre_code):
             if alt_result:
                 return alt_result[1], alt_result[0]
             else:
-                return nombre, "Année inconnue"  # On garde le nombre mais avec un libellé spécial
+                return nombre, "Année inconnue"  # Conservation du nombre mais avec un libellé spécial
+
 
         return nombre, annee
-
     except Exception as e:
         print(f"Erreur de requête: {e}")
         return 0, "Erreur"
@@ -180,7 +180,7 @@ def update_stats_display():
     stats_label.configure(text="\n".join(lines))
 
 
-# 🔸 Boutons en bas
+# 🔸 Boutons de la frame d'en bas
 bottom_frame = ctk.CTkFrame(root, corner_radius=15)
 bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
 
