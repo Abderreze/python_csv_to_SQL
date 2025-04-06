@@ -135,7 +135,7 @@ def get_max_occurrence(prenom, genre_code):
             WHERE preusuel=? AND sexe=?
             ORDER BY nombre DESC
             LIMIT 1
-        """, (prenom, genre_code))
+        """, (prenom.upper(), genre_code))
         result = cursor.fetchone()
 
         if not result:
