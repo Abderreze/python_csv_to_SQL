@@ -107,6 +107,7 @@ zone_select = ctk.CTkFrame(frame_graphiques)
 zone_select.pack(pady=10)
 
 prenoms_deja_select = ctk.CTkComboBox(zone_select, values=[], width=200)
+prenoms_deja_select.set("") #évite le vieux CTkComboBox de ses morts
 prenoms_deja_select.pack(side="left", padx=5)
 
 remove_button = ctk.CTkButton(
@@ -191,6 +192,39 @@ search = ctk.StringVar()
 entry_custom = ctk.CTkEntry(bottom_frame, placeholder_text="Tape ton prénom ici...", textvariable=search, width=200)
 entry_custom.pack(side="left", padx=10)
 entry_custom.bind("<Return>", on_enter)
+suggestion_frame = ctk.CTkScrollableFrame(master=frame_info, fg_color="transparent")
+suggestion_frame.pack()
+
+conn = sqlite3.connect("prenoms.db")
+cursor = conn.cursor()
+cursor.execute("""SELECT DISTINCT preusuel FROM prenoms;""")
+result = cursor.fetchall()
+prenoms_existants = [uplet[0] for uplet in result]
+conn.close()
+
+def update_suggestion(event=None):
+    typed = search.get()
+    for widget in suggestion_frame.winfo_children():
+        widget.destroy()
+    if len(typed) <= 3:
+        return 
+    
+    filtrage = [prenom for prenom in prenoms_existants if prenom.upper().startswith(typed.upper())]
+    
+    for suggestion in filtrage:
+        btn = ctk.CTkButton(
+            master = suggestion_frame,
+            text = suggestion,
+            command=lambda s=suggestion: select_suggestion(s)
+        )
+        btn.pack(fill="x", padx=5, pady=2)
+def select_suggestion(value):
+    entry_custom.delete(0, ctk.END)
+    entry_custom.insert(0, value)
+    update_suggestion()
+
+entry_custom.bind("<KeyRelease>", update_suggestion)
+
 
 add_button = ctk.CTkButton(bottom_frame, text="Ajouter", command=on_enter)
 add_button.pack(side="left", padx=10)
