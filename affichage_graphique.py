@@ -6,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from random import randint
 from PIL import Image, ImageTk
 
-from graphe_de_ton_prenom import graphe_prenom
+from Graphes.graphe_de_ton_prenom import graphe_prenom
 
 matplotlib.use('Agg')
 
