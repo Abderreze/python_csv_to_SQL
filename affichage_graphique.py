@@ -51,6 +51,17 @@ radio_homme.pack(side="left", padx=10)
 radio_femme = ctk.CTkRadioButton(sexe_frame, text="Femme", variable=sexe_saisi, value=2)
 radio_femme.pack(side="left", padx=10)
 
+# Récupération de tous les prénoms existants pour les suggestions, et des couples (prenom, sexe) existants voir dans afficher_graphique()
+conn = sqlite3.connect("prenoms.db")
+cursor = conn.cursor()
+cursor.execute("""SELECT DISTINCT preusuel FROM prenoms;""")
+result = cursor.fetchall()
+prenoms_existants = [uplet[0] for uplet in result]
+cursor.execute("""SELECT DISTINCT preusuel, sexe FROM prenoms;""")
+result = cursor.fetchall()
+prenoms_sexe_existants = [uplet for uplet in result]
+print(prenoms_sexe_existants)
+conn.close()
 # 🔸 Données prénoms sélectionnés
 prenoms_sexe_select = {}
 prenoms_select = []
@@ -72,11 +83,12 @@ def on_enter(event=None):
     prenom = search.get()
     sexe = sexe_saisi.get()
     sexe_str = "masculin" if sexe == 1 else "féminin"
-
-    if (prenom, sexe_str) not in prenoms_select:
+    # la nouvelle condition premet de ne pas avoir un "jean-luc féminin" dans les prénoms possibles à retier
+    if (prenom, sexe_str) not in prenoms_select and (prenom.upper(), sexe) in prenoms_sexe_existants: 
         prenoms_sexe_select[(prenom, sexe)] = f"#{randint(0, 0xFFFFFF):06x}"
         prenoms_select.append((prenom, sexe_str))
     else:
+        print(prenoms_select)
         print("ich bin ein berliner")
 
     prenoms_deja_select.configure(values=[f"{p} {s}" for p, s in prenoms_select])
@@ -195,20 +207,14 @@ entry_custom.bind("<Return>", on_enter)
 suggestion_frame = ctk.CTkScrollableFrame(master=frame_info, fg_color="transparent")
 suggestion_frame.pack()
 
-conn = sqlite3.connect("prenoms.db")
-cursor = conn.cursor()
-cursor.execute("""SELECT DISTINCT preusuel FROM prenoms;""")
-result = cursor.fetchall()
-prenoms_existants = [uplet[0] for uplet in result]
-conn.close()
 
 def update_suggestion(event=None):
     typed = search.get()
     for widget in suggestion_frame.winfo_children():
         widget.destroy()
-    if len(typed) <= 3:
+    if len(typed) <= 2:
         return 
-    
+    suggestion_frame._scrollbar.set(0, 0)
     filtrage = [prenom for prenom in prenoms_existants if prenom.upper().startswith(typed.upper())]
     
     for suggestion in filtrage:
