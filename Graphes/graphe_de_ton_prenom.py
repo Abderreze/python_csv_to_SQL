@@ -20,7 +20,7 @@ def graphe_prenom(prenoms_sexes: dict()):
     for prenom_sexe, couleur in prenoms_sexes.items():
         prenom, sexe = prenom_sexe
         if prenom.upper() in prenoms:
-            curseur.execute("SELECT annais, nombre FROM prenoms WHERE preusuel LIKE ? AND sexe = ? ORDER BY annais ;", (prenom, sexe))
+            curseur.execute("SELECT annais, nombre FROM prenoms WHERE preusuel LIKE ? AND sexe = ? ORDER BY annais ;", (prenom.upper(), sexe))
 
             result = curseur.fetchall()
 
