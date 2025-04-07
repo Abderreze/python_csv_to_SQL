@@ -85,7 +85,7 @@ def on_enter(event=None):
     sexe_str = "masculin" if sexe == 1 else "féminin"
     # la nouvelle condition premet de ne pas avoir un "jean-luc féminin" dans les prénoms possibles à retier
     if (prenom, sexe_str) not in prenoms_select and (prenom.upper(), sexe) in prenoms_sexe_existants: 
-        prenoms_sexe_select[(prenom, sexe)] = f"#{randint(0, 0xFFFFFF):06x}"
+        prenoms_sexe_select[(prenom, sexe)] = f"#{randint(0x333333, 0xFFFFFF):06x}"
         prenoms_select.append((prenom, sexe_str))
     else:
         print(prenoms_select)
@@ -185,10 +185,10 @@ def update_stats_display():
     for (prenom, genre_code) in prenoms_sexe_select:
         genre_str = "masculin" if genre_code == 1 else "féminin"
         occur, annee = get_max_occurrence(prenom, genre_code)
-
+        
         # Formatage spécial pour l'affichage
         display_annee = "Année inconnue" if annee == "XXXX" else annee
-        lines.append(f"{prenom} | {genre_str} | Max: {occur} en {display_annee}")
+        lines.append(f"{prenom[0] + prenom[1:].lower()} | {genre_str} | Max: {occur} en {display_annee}")
 
     stats_label.configure(text="\n".join(lines))
 
