@@ -20,20 +20,20 @@ main_container = ctk.CTkFrame(root, corner_radius=0)
 main_container.pack(side="right", expand=True, fill="both")
 
 home_frame = ctk.CTkFrame(main_container, corner_radius=0)
-other_frame = ctk.CTkFrame(main_container, corner_radius=0)
+stat_frame = ctk.CTkFrame(main_container, corner_radius=0)
+
 
 def show_home():
-    other_frame.pack_forget()
+    stat_frame.pack_forget()
     home_frame.pack(fill="both", expand=True)
 
 def show_other():
     home_frame.pack_forget()
-    other_frame.pack(fill="both", expand=True)
+    stat_frame.pack(fill="both", expand=True)
 
 # Sidebar with icons
 home_icon = ctk.CTkImage(Image.open("Icons/home.png"), size=(24, 24))
 stats_icon = ctk.CTkImage(Image.open("Icons/stats.png"), size=(24, 24))
-
 
 sidebar = ctk.CTkFrame(root, width=80, fg_color="#1e1e1e", corner_radius=2)
 sidebar.pack(side="left", fill="y", padx=0, pady=0)
@@ -289,11 +289,11 @@ dark_mode_switch.pack(side="right", padx=10)
 dark_mode_switch.select()
 
 # Titre de la vue
-other_label = ctk.CTkLabel(other_frame, text="Statistiques Générales", font=("Arial", 20))
-other_label.pack(pady=20)
+stat_label = ctk.CTkLabel(stat_frame, text="Statistiques Générales sur les naissances en France", font=("Arial", 20))
+stat_label.pack(pady=20)
 
 # Frame pour les graphiques
-stats_frame = ctk.CTkFrame(other_frame, corner_radius=15)
+stats_frame = ctk.CTkFrame(stat_frame, corner_radius=15)
 stats_frame.pack(expand=True, fill="both", padx=20, pady=10)
 
 # Graphique des naissances par année (exemple)
