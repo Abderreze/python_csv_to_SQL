@@ -1,11 +1,10 @@
-import configparser
 import csv
 import sqlite3
 import sys
 import requests
 import os
 
-from unzip import unzip_file
+from Utils.unzip import unzip_file
 
 def create_births_table(db_path):
     connection = sqlite3.connect(db_path)
@@ -70,10 +69,3 @@ def import_births_to_sql(db_path, data_dir, file_url):
     else:
         sys.stderr.write("URL pour le fichier ZIP des naissances non configurée dans config.ini")
         return False
-
-config = configparser.ConfigParser()
-config.read("config.ini")
-import_births_to_sql(config.get("paths", "database_path"), config.get("paths", "data_dir"), config.get("remote", "births_url"))
-
-
-

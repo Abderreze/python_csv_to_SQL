@@ -3,7 +3,6 @@ import os
 import re
 import sqlite3
 import csv
-from sys import exception
 import sys
 import requests
 
@@ -88,8 +87,8 @@ def import_deaths_to_sql(db_path, data_dir, file_urls, first_year):
         try:
             response = requests.get(url)
             response.raise_for_status()
-            txt_path = os.path.join(data_dir, f"deces-{first_year+i}.txt")
-            csv_path = os.path.join(data_dir, f"deces-{first_year+i}.csv")
+            txt_path = os.path.join(data_dir, f"deces-{int(first_year)+i}.txt")
+            csv_path = os.path.join(data_dir, f"deces-{int(first_year)+i}.csv")
             with open(txt_path, "wb") as f:
                 f.write(response.content)
             if os.path.exists(txt_path):
@@ -106,8 +105,3 @@ def import_deaths_to_sql(db_path, data_dir, file_urls, first_year):
             return False
 
 
-config = configparser.ConfigParser()
-config.read("config.ini")
-deaths_urls_str = config.get("remote", "deaths_urls", fallback="")
-deaths_urls = [url.strip() for url in deaths_urls_str.split(',')] if deaths_urls_str else []
-import_deaths_to_sql(config.get("paths", "database_path"), config.get("paths", "data_dir"), deaths_urls, 2019)
