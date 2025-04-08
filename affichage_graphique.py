@@ -1,12 +1,13 @@
 import customtkinter as ctk
 import sqlite3
 import matplotlib
+import csv
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from random import randint
 from PIL import Image, ImageTk
 from Graphes.graphe_de_ton_prenom import graphe_prenom
-
+from collections import defaultdict
 matplotlib.use('Agg')
 
 ctk.set_appearance_mode("dark")
@@ -112,7 +113,15 @@ cursor.execute("""SELECT DISTINCT preusuel, sexe FROM prenoms;""")
 result = cursor.fetchall()
 prenoms_sexe_existants = [uplet for uplet in result]
 conn.close()
+tmp = defaultdict(list)
+with open('suggestions.csv', mode='r', encoding='utf-8', newline='') as f:
+    reader = csv.reader(f, delimiter=';')
+    next(reader)
 
+    for prefixe, prenom in reader:
+        tmp[prefixe].append(prenom)
+prefixes_prenoms = dict(tmp)
+del tmp
 # Données des prénoms sélectionnés
 prenoms_sexe_select = {}
 prenoms_select = []
@@ -258,10 +267,11 @@ def update_suggestion(event=None):
     typed = search.get()
     for widget in suggestion_frame.winfo_children():
         widget.destroy()
-    if len(typed) <= 2:
+    if len(typed) <= 3:
         return
     suggestion_frame._scrollbar.set(0, 0)
-    filtrage = [prenom for prenom in prenoms_existants if prenom.upper().startswith(typed.upper())]
+    
+    filtrage = [prenom for prenom in prefixes_prenoms.get(typed[:4].upper(), []) if prenom.upper().startswith(typed.upper())]
 
     for suggestion in filtrage:
         btn = ctk.CTkButton(
