@@ -121,6 +121,8 @@ with open('suggestions.csv', mode='r', encoding='utf-8', newline='') as f:
     for prefixe, prenom in reader:
         tmp[prefixe].append(prenom)
 prefixes_prenoms = dict(tmp)
+for liste in prefixes_prenoms.values():
+    liste.sort()
 del tmp
 # Données des prénoms sélectionnés
 prenoms_sexe_select = {}
@@ -271,7 +273,7 @@ def update_suggestion(event=None):
         return
     suggestion_frame._scrollbar.set(0, 0)
     
-    filtrage = [prenom for prenom in prefixes_prenoms.get(typed[:4].upper(), []) if prenom.upper().startswith(typed.upper())]
+    filtrage = [prenom for prenom in prefixes_prenoms.get(typed.upper(), prefixes_prenoms.get(typed[:4].upper(), [])) if prenom.upper().startswith(typed.upper())]
 
     for suggestion in filtrage:
         btn = ctk.CTkButton(
