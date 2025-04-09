@@ -340,4 +340,4 @@ def gui(db_prenoms):
 # Lancement de l'application
     root.mainloop()
 
-gui("/home/citron/Documents/nsi/projet_db/python_csv_to_SQL/Tables/prenoms.db")
+gui("Tables/prenoms.db")
