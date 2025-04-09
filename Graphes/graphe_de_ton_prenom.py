@@ -1,11 +1,13 @@
 import csv
 import sqlite3 
 import matplotlib
+
+from Utils.path import resource_path
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
-def graphe_prenom(db_prenoms, prenoms_sexes: dict()):
+def graphe_prenom(db_prenoms, prenoms_sexes: dict):
     plt.style.use('dark_background')
     plt.gca().xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
     plt.gca().yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
@@ -43,7 +45,7 @@ def graphe_prenom(db_prenoms, prenoms_sexes: dict()):
     #        curseur.execute("SELECT DISTINCT preusuel FROM prenoms WHERE ")
             existe = (False and existe)
 
-    plt.savefig("graphique.png")
+    plt.savefig(resource_path("graphique.png"))
     return existe
 if __name__ == '__main__':
     graphe_prenom("gabriel", 1)

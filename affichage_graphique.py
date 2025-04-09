@@ -9,6 +9,8 @@ from random import randint
 from PIL import Image, ImageTk
 from Graphes.graphe_de_ton_prenom import graphe_prenom
 from collections import defaultdict
+from Utils.path import resource_path
+
 def gui(root, db_prenoms):
     matplotlib.use('Agg')
 
@@ -37,8 +39,8 @@ def gui(root, db_prenoms):
         stat_frame.pack(fill="both", expand=True)
 
 # Sidebar with icons
-    home_icon = ctk.CTkImage(Image.open("Icons/home.png"), size=(24, 24))
-    stats_icon = ctk.CTkImage(Image.open("Icons/stats.png"), size=(24, 24))
+    home_icon = ctk.CTkImage(Image.open(resource_path("Icons/home.png")), size=(24, 24))
+    stats_icon = ctk.CTkImage(Image.open(resource_path("Icons/stats.png")), size=(24, 24))
 
     sidebar = ctk.CTkFrame(root, width=80, fg_color="#1e1e1e", corner_radius=2)
     sidebar.pack(side="left", fill="y", padx=0, pady=0)
@@ -118,7 +120,7 @@ def gui(root, db_prenoms):
     prenoms_sexe_existants = [uplet for uplet in result]
     conn.close()
     tmp = defaultdict(list)
-    with open('suggestions.csv', mode='r', encoding='utf-8', newline='') as f:
+    with open(resource_path('suggestions.csv'), mode='r', encoding='utf-8', newline='') as f:
         reader = csv.reader(f, delimiter=';')
         next(reader)
 
@@ -137,7 +139,7 @@ def gui(root, db_prenoms):
         result = graphe_prenom(db_prenoms, dico_prenoms_sexe)
         if result is True:
             try:
-                image = Image.open("graphique.png")
+                image = Image.open(resource_path("graphique.png"))
                 image = image.resize((500, 400), Image.Resampling.LANCZOS)
                 photo = ctk.CTkImage(light_image=image, dark_image=image, size=(500, 400))
                 image_label.configure(image=photo)
@@ -340,4 +342,3 @@ def gui(root, db_prenoms):
         error_label = ctk.CTkLabel(stats_frame, text=f"Erreur de chargement des données: {str(e)}", text_color="red")
         error_label.pack(pady=50)
 
-# Lancement de l'application

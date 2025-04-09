@@ -3,7 +3,7 @@ import sqlite3
 import sys
 import requests
 import os
-
+from Utils.path import resource_path
 from Utils.unzip import unzip_file
 
 def create_births_table(db_path):
@@ -46,8 +46,8 @@ def import_births_to_sql(db_path, data_dir, file_url):
         try:
             response = requests.get(file_url)
             response.raise_for_status()
-            births_zip_path = os.path.join(data_dir, "naissances2022.zip")
-            birth_csv_path = os.path.join(data_dir, "nat2022.csv")
+            births_zip_path = os.path.join(data_dir, resource_path("naissances2022.zip"))
+            birth_csv_path = os.path.join(data_dir, resource_path("nat2022.csv"))
             with open(births_zip_path, "wb") as f:
                 f.write(response.content)
             

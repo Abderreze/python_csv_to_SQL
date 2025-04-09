@@ -1,9 +1,9 @@
 import sqlite3
-import matplotlib
 import matplotlib.pyplot as plt
-from collections import defaultdict
+from Utils.path import resource_path
+
 def classements(prenom, sexe):
-    conn = sqlite3.connect("prenoms.db")
+    conn = sqlite3.connect(resource_path("prenoms.db"))
     cursor = conn.cursor()
     cursor.execute("""SELECT DISTINCT annais FROM prenoms;""")
     result = cursor.fetchall()

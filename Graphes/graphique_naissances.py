@@ -2,11 +2,13 @@ import sqlite3
 import matplotlib.pyplot as plt
 
 import matplotlib.ticker as ticker
+
+from Utils.path import resource_path
 plt.style.use('dark_background')
 plt.gca().xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 plt.gca().yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
-liaison = sqlite3.connect("prenoms.db")
+liaison = sqlite3.connect(resource_path("prenoms.db"))
 curseur = liaison.cursor()
 curseur.execute("""SELECT DISTINCT annais FROM prenoms WHERE annais != 'XXXX' ORDER BY annais;""")
 result = curseur.fetchall()

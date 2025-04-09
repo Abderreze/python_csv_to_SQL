@@ -8,6 +8,7 @@ from Utils.config import set_setting
 from Utils.import_births import import_births_to_sql
 from Utils.import_deaths import import_deaths_to_sql
 from Utils.import_trivia import import_trivia_to_sql
+from Utils.path import resource_path
 from affichage_graphique import gui
 
 def force_fullscreen(root):
@@ -18,7 +19,7 @@ def force_fullscreen(root):
 
 # on charge le fichier de configuration
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read(resource_path('config.ini'))
 
 def download_and_process_data():
     # to make sure latest config is fetched
@@ -49,8 +50,8 @@ def ask_for_existing_path(parent):
     def save_path():
         new_path = path_entry.get()
         if os.path.exists(new_path) and new_path.endswith(".db"):
-            set_setting("config.ini", "paths", "database_path", new_path)
-            config.read("config.ini") # pour mettre à jour les données
+            set_setting(resource_path("config.ini"), "paths", "database_path", new_path)
+            config.read(resource_path("config.ini")) # pour mettre à jour les données
             path_window.destroy()
         else:
             error_label = ctk.CTkLabel(path_window, text="Chemin invalide ou fichier non '.db'.")
@@ -73,8 +74,8 @@ def ask_for_new_path(parent, db_path):
 
     def generate_at_path():
         new_path = path_entry.get()
-        set_setting("config.ini", "paths", "database_path", new_path)
-        config.read("config.ini") # mettre à jour
+        set_setting(resource_path("config.ini"), "paths", "database_path", new_path)
+        config.read(resource_path("config.ini")) # mettre à jour
         path_window.destroy()
         if download_and_process_data():
             success_window = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
