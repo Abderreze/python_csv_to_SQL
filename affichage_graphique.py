@@ -338,6 +338,6 @@ def gui(db_prenoms):
         error_label.pack(pady=50)
 
 # Lancement de l'application
-    root.mainloop()
+    return root #comme ça yavor, sans le mainloop() pour pas lancé maintenant
 
 gui("Tables/prenoms.db")
