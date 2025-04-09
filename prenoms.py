@@ -137,7 +137,6 @@ if __name__ == "__main__":
 
     if check_gen_db(app, db_path):
         app.deiconify()
-        print(config.get("paths", "database_path"))
         gui(app, config.get("paths", "database_path")) # potentiellement changé depuis
     else:
         hError = display_notification(app, "Erreur", "La base de données n'a pas pu être chargée ou créée. L'application va fermer.")
