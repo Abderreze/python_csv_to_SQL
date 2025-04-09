@@ -124,11 +124,15 @@ if __name__ == "__main__":
 
     db_path = config.get("paths", "database_path")
     app = ctk.CTk()
+    app.withdraw()
+    ctk.set_appearance_mode("dark")
+    ctk.set_default_color_theme("dark-blue")
 
     if os.path.exists(db_path):
         hGui = gui(db_path, app)
     else:
         check_gen_db(db_path, app)
+        app.deiconify()
     app.mainloop()
 
 
