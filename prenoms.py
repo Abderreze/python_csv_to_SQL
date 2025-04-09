@@ -41,9 +41,7 @@ def ask_for_existing_path(parent):
         new_path = path_entry.get()
         if os.path.exists(new_path) and new_path.endswith(".db"):
             set_setting("config.ini", "paths", "database_path", new_path)
-            config.read("config.ini")
-            print("ask for specific path is good")
-            print(config.get("paths", "database_path"))
+            config.read("config.ini") # pour mettre à jour les données
             path_window.destroy()
         else:
             error_label = ctk.CTkLabel(path_window, text="Chemin invalide ou fichier non '.db'.")
@@ -67,6 +65,7 @@ def ask_for_new_path(parent, db_path):
     def generate_at_path():
         new_path = path_entry.get()
         set_setting("config.ini", "paths", "database_path", new_path)
+        config.read("config.ini") # mettre à jour
         path_window.destroy()
         if download_and_process_data():
             success_window = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
