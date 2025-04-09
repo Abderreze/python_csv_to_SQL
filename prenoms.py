@@ -15,7 +15,7 @@ def force_fullscreen(root):
     if os.name == 'nt':
         hWnd = ctypes.windll.user32.GetParent(root.winfo_id())
         SW_MAXIMIZE = 3
-        ctypes.windll.user32.ShowWindow(hWnd, SW_MAXSIZE)
+        ctypes.windll.user32.ShowWindow(hWnd, SW_MAXIMIZE)
 
 # on charge le fichier de configuration
 config = configparser.ConfigParser()
