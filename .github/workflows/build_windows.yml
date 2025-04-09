@@ -1,0 +1,46 @@
+name: Build Windows exe
+
+on:
+  release:
+    types: [created] # only run on new github releases
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Find customtkinter path
+        id: ctk
+        run: |
+          python -c "import customtkinter, os; print(f'::set-output name=path::{os.path.dirname(customtkinter.__file__)}')"
+
+      - name: Build with Pyinstaller
+        run: |
+          pyinstaller --noconfirm --onedir --windowed ^
+            --add-data "config.ini;." ^
+            --add-data "Icons;Icons" ^
+            --add-data "suggestions.csv;." ^
+            --add-data "Graphes;Graphes" ^
+            --add-data "Utils;Utils" ^
+            --add-date "${{ steps.ctk.outputs.path }};customtkinter" ^
+            prenoms.py
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-exe
+          path: dist/prenoms/
