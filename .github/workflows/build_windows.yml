@@ -44,10 +44,10 @@ jobs:
           path: w64-prenoms.zip
 
       - name: Attach artifact to release
-        if: github.event.name == 'release'
+        if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
         with:
-          upload_url = ${{ github.event.release.upload_url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: w64-prenoms.zip
           asset_name: w64-prenoms.zip
           asset_content_type: application/zip
