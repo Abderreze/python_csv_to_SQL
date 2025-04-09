@@ -8,13 +8,12 @@ from random import randint
 from PIL import Image, ImageTk
 from Graphes.graphe_de_ton_prenom import graphe_prenom
 from collections import defaultdict
-def gui(db_prenoms):
+def gui(db_prenoms, root):
     matplotlib.use('Agg')
 
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("dark-blue")
 
-    root = ctk.CTk()
     root.attributes('-zoomed', True)
     root.title("Prénomator 3000 EXTRA MAX V2.0")
 
@@ -338,6 +337,3 @@ def gui(db_prenoms):
         error_label.pack(pady=50)
 
 # Lancement de l'application
-    return root #comme ça yavor, sans le mainloop() pour pas lancé maintenant
-
-gui("Tables/prenoms.db")
