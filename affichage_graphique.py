@@ -9,7 +9,7 @@ from random import randint
 from PIL import Image, ImageTk
 from Graphes.graphe_de_ton_prenom import graphe_prenom
 from collections import defaultdict
-def gui(db_prenoms, root):
+def gui(root, db_prenoms):
     matplotlib.use('Agg')
 
     ctk.set_appearance_mode("dark")

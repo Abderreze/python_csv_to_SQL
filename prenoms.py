@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# import argparse
 import configparser
 import os
 import customtkinter as ctk
@@ -30,8 +29,8 @@ def download_and_process_data():
     import_trivia_to_sql(db_path, data_dir, trivia_url) 
     return True
 
-def ask_for_existing_path():
-    path_window = ctk.CTkToplevel()
+def ask_for_existing_path(parent):
+    path_window = ctk.CTkToplevel(parent)
     path_window.title("Chemin BDD")
     path_label = ctk.CTkLabel(path_window, text="Veuillez spécifier le chemin du fichier de base de données existant:")
     path_label.pack(padx=20, pady=10)
@@ -42,6 +41,9 @@ def ask_for_existing_path():
         new_path = path_entry.get()
         if os.path.exists(new_path) and new_path.endswith(".db"):
             set_setting("config.ini", "paths", "database_path", new_path)
+            config.read("config.ini")
+            print("ask for specific path is good")
+            print(config.get("paths", "database_path"))
             path_window.destroy()
         else:
             error_label = ctk.CTkLabel(path_window, text="Chemin invalide ou fichier non '.db'.")
@@ -51,10 +53,10 @@ def ask_for_existing_path():
     save_button.pack(padx=20, pady=10)
     path_window.wait_window()
 
-def ask_for_new_path(db_path):
+def ask_for_new_path(parent, db_path):
 
 
-    path_window = ctk.CTkToplevel()
+    path_window = ctk.CTkToplevel(parent)
     path_window.title("Chemin de la nouvelle base de données")
     path_label = ctk.CTkLabel(path_window, text="Veuillez spécifier le chemin où créer la nouvelle base de données:")
     path_label.pack(padx=20, pady=10)
@@ -67,9 +69,9 @@ def ask_for_new_path(db_path):
         set_setting("config.ini", "paths", "database_path", new_path)
         path_window.destroy()
         if download_and_process_data():
-            success_window = display_notification("Succès", "La base de données a été téléchargée et créée avec succès!")
+            success_window = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
         else:
-            erreur_window = display_notification("Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
+            erreur_window = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
 
         
     generate_button = ctk.CTkButton(path_window, text="Générer la base de données ici", command=generate_at_path)
@@ -77,33 +79,16 @@ def ask_for_new_path(db_path):
     path_window.wait_window()
     
 
-def display_notification(title, value):
-    success_window = ctk.CTkToplevel()
+def display_notification(parent, title, value):
+    success_window = ctk.CTkToplevel(parent)
     success_window.title(title)
     success_label = ctk.CTkLabel(success_window, text=value)
     success_label.pack(padx=20, pady=10)
     return success_window
 
 
-def check_gen_db(database_path, parent):
+def check_gen_db(parent, database_path):
     if not os.path.exists(database_path):
-
-        def handle_choice(choice):
-            choice_window.destroy()
-            if choice == "Spécifier un chemin existant":
-                # a modifier
-                ask_for_existing_path()
-
-            elif choice == "Générer au chemin par défaut":
-                if download_and_process_data():
-                    hSuccess = display_notification("Succès", "La base de données a été téléchargée et créée avec succès!")
-                else:
-                    hError = display_notification("Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
-
-            elif choice == "Spécifier un nouveau chemin pour la générer":
-                db_path = config.get("paths", "database_path")
-                ask_for_new_path(db_path)
-
 
         choice_window = ctk.CTkToplevel(parent) # a modifier
         choice_window.title("Base de données manquante!!!")
@@ -112,30 +97,52 @@ def check_gen_db(database_path, parent):
         label_question = ctk.CTkLabel(choice_window, text="Sohuaitez-vous spécifier un autre chemin la génerer ?")
         label_question.pack(padx=20, pady=5)
         options = ["Spécifier un chemin existant", "Générer au chemin par défaut", "Spécifier un nouveau chemin pour la générer"]
-        option_menu = ctk.CTkOptionMenu(choice_window, values=options, command=handle_choice)
+        selected_option = ctk.StringVar(value=options[1])
+        option_menu = ctk.CTkOptionMenu(choice_window, values=options, variable=selected_option)
         option_menu.pack(padx=20, pady=10)
-        
-        choice_window.wait_window()
-    return os.path.exists(database_path)
 
+        def handle_choice():
+            choice = selected_option.get()
+            choice_window.destroy()
+            if choice == "Spécifier un chemin existant":
+                ask_for_existing_path(parent)
+            elif choice == "Générer au chemin par défaut":
+                if download_and_process_data():
+                    hSuccess = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
+                else:
+                    hError = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
+
+            elif choice == "Spécifier un nouveau chemin pour la générer":
+                db_path = config.get("paths", "database_path")
+                ask_for_new_path(parent, db_path)
+
+
+        confirm_button = ctk.CTkButton(choice_window, text="Confirmer", command=handle_choice)
+        confirm_button.pack(padx=20, pady=10)
+
+        choice_window.wait_window()
+
+        return os.path.exists(config.get("paths", "database_path"))
+        
+    return True
 
 
 if __name__ == "__main__":
 
     db_path = config.get("paths", "database_path")
     app = ctk.CTk()
-    app.withdraw()
+    app.withdraw() # on cache la fenêtre principale au début
+
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("dark-blue")
 
-    if os.path.exists(db_path):
-        hGui = gui(db_path, app)
+    if check_gen_db(app, db_path):
         app.deiconify()
+        print(config.get("paths", "database_path"))
+        gui(app, config.get("paths", "database_path")) # potentiellement changé depuis
     else:
-        check_gen_db(db_path, app)
-        app.deiconify()
-    app.mainloop()
+        hError = display_notification(app, "Erreur", "La base de données n'a pas pu être chargée ou créée. L'application va fermer.")
+        app.after(3000, app.destroy)
 
-
-    # if check_gen_db(db_path):
-    #     print("yay")
+    if app.winfo_exists():
+        app.mainloop()
