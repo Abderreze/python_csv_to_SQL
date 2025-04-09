@@ -139,7 +139,7 @@ def gui(root, db_prenoms):
         result = graphe_prenom(db_prenoms, dico_prenoms_sexe)
         if result is True:
             try:
-                image = Image.open(resource_path("graphique.png"))
+                image = Image.open("graphique.png")
                 image = image.resize((500, 400), Image.Resampling.LANCZOS)
                 photo = ctk.CTkImage(light_image=image, dark_image=image, size=(500, 400))
                 image_label.configure(image=photo)

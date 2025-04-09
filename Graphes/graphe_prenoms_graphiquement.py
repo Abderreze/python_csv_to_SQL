@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 from random import randint
 from PIL import Image, ImageTk
-from Utils.path import resource_path
 from graphe_de_ton_prenom import graphe_prenom
 def afficher_graphique(dico_prenoms_sexe):
     result = graphe_prenom(dico_prenoms_sexe)

@@ -1,8 +1,6 @@
-import csv
 import sqlite3 
 import matplotlib
 
-from Utils.path import resource_path
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker

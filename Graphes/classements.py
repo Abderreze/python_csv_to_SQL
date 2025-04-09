@@ -1,6 +1,5 @@
 import sqlite3
 import matplotlib.pyplot as plt
-from Utils.path import resource_path
 
 def classements(prenom, sexe):
     conn = sqlite3.connect("prenoms.db")
