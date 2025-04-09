@@ -22,7 +22,9 @@ def download_and_process_data():
     deaths_urls_str = config.get("remote", "deaths_urls")
     deaths_urls = [url.strip() for url in deaths_urls_str.split(',')]
     first_deaths_year = config.get("remote", "first_deaths_year")
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    db_dir = os.path.dirname(db_path)
+    if db_dir:
+        os.makedirs(db_dir, exist_ok=True)
     os.makedirs(data_dir, exist_ok=True)
     import_births_to_sql(db_path, data_dir, births_url)
     import_deaths_to_sql(db_path, data_dir, deaths_urls, first_deaths_year)
