@@ -2,7 +2,6 @@
 import configparser
 import os
 import customtkinter as ctk
-import ctypes
 
 from Utils.config import set_setting
 from Utils.import_births import import_births_to_sql
@@ -10,12 +9,6 @@ from Utils.import_deaths import import_deaths_to_sql
 from Utils.import_trivia import import_trivia_to_sql
 from Utils.path import resource_path
 from affichage_graphique import gui
-
-def force_fullscreen(root):
-    if os.name == 'nt':
-        hWnd = ctypes.windll.user32.GetParent(root.winfo_id())
-        SW_MAXIMIZE = 3
-        ctypes.windll.user32.ShowWindow(hWnd, SW_MAXIMIZE)
 
 # on charge le fichier de configuration
 config = configparser.ConfigParser()
@@ -155,5 +148,9 @@ if __name__ == "__main__":
         app.after(3000, app.destroy)
 
     if app.winfo_exists():
-        app.after(0, lambda: force_fullscreen(app))
+        if os.name == 'posix':
+            app.after(0, lambda: app.attributes('zoomed', True))
+        elif os.name == 'nt':
+            app.after(0, lambda: app.state('zoomed'))
+
         app.mainloop()

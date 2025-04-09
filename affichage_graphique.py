@@ -17,10 +17,6 @@ def gui(root, db_prenoms):
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("dark-blue")
 
-    if os.name == 'posix':
-        root.attributes('-zoomed', True)
-    elif os.name == 'nt':
-        root.state('zoomed')
     root.title("Prénomator 3000 EXTRA MAX V2.0")
 
     main_container = ctk.CTkFrame(root, corner_radius=0)
