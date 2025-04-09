@@ -31,7 +31,7 @@ jobs:
 
       - name: Build with Pyinstaller
         run: |
-          pyinstaller --noconfirm --onedir --windowed --add-data "config.ini;." --add-data "Icons;Icons" --add-data "suggestions.csv;." --add-data "%CUSTOMTKINTER_PATH%;customtkinter" prenoms.py
+          pyinstaller --noconfirm --onedir --windowed --add-data "config.ini;." --add-data "Icons;Icons" --add-data "suggestions.csv;." --add-data "${{ env.CUSTOMTKINTER_PATH }};customtkinter" prenoms.py
 
       - name: Zip the Artifact
         run:
