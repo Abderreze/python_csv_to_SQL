@@ -31,14 +31,7 @@ jobs:
 
       - name: Build with Pyinstaller
         run: |
-          pyinstaller --noconfirm --onedir --windowed ^
-            --add-data "config.ini;." ^
-            --add-data "Icons;Icons" ^
-            --add-data "suggestions.csv;." ^
-            --add-data "Graphes;Graphes" ^
-            --add-data "Utils;Utils" ^
-            --add-date "${{ steps.ctk.outputs.path }};customtkinter" ^
-            prenoms.py
+          pyinstaller --noconfirm --onedir --windowed --add-data "config.ini;." --add-data "Icons;Icons" --add-data "suggestions.csv;." --add-data "Graphes;Graphes" --add-data "Utils;Utils" --add-data "${{ steps.ctk.outputs.path }};customtkinter" prenoms.py
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
