@@ -44,4 +44,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: windows-exe
-          path: dist/prenoms/
+          path: dist/
