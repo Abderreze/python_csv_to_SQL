@@ -130,6 +130,7 @@ if __name__ == "__main__":
 
     if os.path.exists(db_path):
         hGui = gui(db_path, app)
+        app.deiconify()
     else:
         check_gen_db(db_path, app)
         app.deiconify()
