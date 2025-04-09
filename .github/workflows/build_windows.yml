@@ -45,6 +45,6 @@ jobs:
           asset_name: w64-prenoms.zip
           asset_content_type: application/zip
         env:
-          GITHUB_TOKEN: BERI_BERI_BERI_SECRET
+          GITHUB_TOKEN: $BERI_BERI_BERI_SECRET
           
       
