@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-
+from matplotlib.figure import Figure
 def graphe_prenom(db_prenoms, prenoms_sexes: dict):
     plt.style.use('dark_background')
     plt.gca().xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
@@ -14,8 +14,12 @@ def graphe_prenom(db_prenoms, prenoms_sexes: dict):
     curseur = liaison.cursor()
     plt.clf()
     curseur.execute("SELECT DISTINCT preusuel FROM prenoms;")
-    result = curseur.fetchall()
-    prenoms = set([p_uplet[0] for p_uplet in result])
+    prenoms = set([p_uplet[0] for p_uplet in curseur.fetchall()])
+    curseur.execute("SELECT DISTINCT preusuel, sexe FROM prenoms;")
+    prenoms_sexe = set([(p_uplet[0], int(p_uplet[1])) for p_uplet in curseur.fetchall()])
+    existe = set(prenoms_sexes.keys()) <= prenoms_sexe
+    fig = Figure(figsize=(5, 4), dpi=100)
+    plot = fig.add_subplot(111)
     existe = True
     for prenom_sexe, couleur in prenoms_sexes.items():
         prenom, sexe = prenom_sexe
@@ -29,21 +33,20 @@ def graphe_prenom(db_prenoms, prenoms_sexes: dict):
             indice_max = y.index(max(y))
             x_max = x[indice_max]
             y_max = y[indice_max]
-            plt.text(x_max, min(y), f"{int(x_max)}", color='red', fontsize=12, verticalalignment='bottom', horizontalalignment='right')
-            plt.text(x[0], y_max, f"{y_max}", color='red', fontsize=12, verticalalignment='bottom', horizontalalignment='right')
-            plt.plot(x, y, marker=None, linestyle='-', color=couleur, label=prenom)
-            plt.scatter(x_max, max(y), marker='x', color='r', label=f"Max en x={x_max}", zorder=3)
-            plt.xlabel("Années")
-            plt.ylabel("Naissances")
-            plt.title("Graphique avec abscisse du maximum")
-            plt.legend()
+            plot.text(x_max, min(y), f"{int(x_max)}", color='red', fontsize=12, verticalalignment='bottom', horizontalalignment='right')
+            plot.text(x[0], y_max, f"{y_max}", color='red', fontsize=12, verticalalignment='bottom', horizontalalignment='right')
+            plot.plot(x, y, marker=None, linestyle='-', color=couleur, label=prenom)
+            plot.scatter(x_max, max(y), marker='x', color='r', label=f"Max en x={x_max}", zorder=3)
+            plot.set_xlabel("Années")
+            plot.set_ylabel("Naissances")
+            plot.set_title("Graphique avec abscisse du maximum")
+            plot.legend()
             existe = (True and existe)
         else:
             print("Ce prénom n'est pas dans la bdd")
     #        curseur.execute("SELECT DISTINCT preusuel FROM prenoms WHERE ")
             existe = (False and existe)
 
-    plt.savefig("graphique.png")
-    return existe
+    return existe, fig
 if __name__ == '__main__':
     graphe_prenom("gabriel", 1)

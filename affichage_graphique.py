@@ -132,16 +132,16 @@ def gui(root, db_prenoms):
 
 # Fonction d'affichage du graphique
     def afficher_graphique(dico_prenoms_sexe):
-        result = graphe_prenom(db_prenoms, dico_prenoms_sexe)
-        if result is True:
-            try:
-                image = Image.open("graphique.png")
-                image = image.resize((500, 400), Image.Resampling.LANCZOS)
-                photo = ctk.CTkImage(light_image=image, dark_image=image, size=(500, 400))
-                image_label.configure(image=photo)
-                image_label.image = photo
-            except Exception as e:
-                print("Erreur chargement image :", e)
+        for widget in frame_graphiques.winfo_children():
+            if widget not in [label_graphiques, zone_select]:
+                widget.destroy()
+        
+        result, fig = graphe_prenom(db_prenoms, dico_prenoms_sexe)
+        print(result)
+        if result:
+            canvas = FigureCanvasTkAgg(fig, master=frame_graphiques)
+            canvas.draw()
+            canvas.get_tk_widget().pack()
 
 # Gestion de l'ajout de prénom
     def on_enter(event=None):
