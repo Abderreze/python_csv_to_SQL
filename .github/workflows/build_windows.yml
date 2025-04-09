@@ -27,7 +27,7 @@ jobs:
       - name: Find customtkinter path
         id: ctk
         run: |
-          echo "CUSTOMTKINTER_PATH=$(python -c "import customtkinter, os; print(os.path.dirname(customtkinter.__file__))')" >> $GITHUB_ENV
+          echo "CUSTOMTKINTER_PATH=$(python -c 'import customtkinter, os; print(os.path.dirname(customtkinter.__file__))')" >> $GITHUB_ENV
 
       - name: Build with Pyinstaller
         run: |
