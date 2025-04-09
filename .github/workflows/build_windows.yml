@@ -3,6 +3,7 @@ name: Build Windows exe
 on:
   release:
     types: [created] # only run on new github releases
+  workflow_dispatch:
 
 jobs:
   build:
