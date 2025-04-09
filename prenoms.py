@@ -148,6 +148,7 @@ if __name__ == "__main__":
         app.after(3000, app.destroy)
 
     if app.winfo_exists():
+        # selon système, le processus pour mettre l'application en plein-écran change
         if os.name == 'posix':
             app.after(0, lambda: app.attributes('zoomed', True))
         elif os.name == 'nt':
