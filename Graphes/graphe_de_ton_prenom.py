@@ -4,14 +4,14 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-plt.style.use('dark_background')
-plt.gca().xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
-plt.gca().yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
-liaison = sqlite3.connect("prenoms.db")
-curseur = liaison.cursor()
+def graphe_prenom(db_prenoms, prenoms_sexes: dict()):
+    plt.style.use('dark_background')
+    plt.gca().xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
+    plt.gca().yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
 
-def graphe_prenom(prenoms_sexes: dict()):
+    liaison = sqlite3.connect(db_prenoms)
+    curseur = liaison.cursor()
     plt.clf()
     curseur.execute("SELECT DISTINCT preusuel FROM prenoms;")
     result = curseur.fetchall()
