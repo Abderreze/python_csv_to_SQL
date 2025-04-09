@@ -35,7 +35,7 @@ jobs:
 
       - name: Zip the Artifact
         run:
-          powershell -Command "Compress-Archive -Path dist\\* -DestinationPath w64-prenoms.zip
+          powershell -Command "Compress-Archive -Path dist\\* -DestinationPath w64-prenoms.zip"
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
