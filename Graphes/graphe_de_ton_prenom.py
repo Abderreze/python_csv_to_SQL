@@ -45,7 +45,7 @@ def graphe_prenom(db_prenoms, prenoms_sexes: dict):
     #        curseur.execute("SELECT DISTINCT preusuel FROM prenoms WHERE ")
             existe = (False and existe)
 
-    plt.savefig(resource_path("graphique.png"))
+    plt.savefig("graphique.png")
     return existe
 if __name__ == '__main__':
     graphe_prenom("gabriel", 1)

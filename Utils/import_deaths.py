@@ -87,8 +87,8 @@ def import_deaths_to_sql(db_path, data_dir, file_urls, first_year):
         try:
             response = requests.get(url)
             response.raise_for_status()
-            txt_path = os.path.join(data_dir, resource_path(f"deces-{int(first_year)+i}.txt"))
-            csv_path = os.path.join(data_dir, resource_path(f"deces-{int(first_year)+i}.csv"))
+            txt_path = os.path.join(data_dir, f"deces-{int(first_year)+i}.txt")
+            csv_path = os.path.join(data_dir, f"deces-{int(first_year)+i}.csv")
             with open(txt_path, "wb") as f:
                 f.write(response.content)
             if os.path.exists(txt_path):

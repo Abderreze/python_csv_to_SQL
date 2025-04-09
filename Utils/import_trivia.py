@@ -45,7 +45,7 @@ def import_trivia_to_sql(db_path, data_dir, file_url):
         try:
             response = requests.get(file_url)
             response.raise_for_status()
-            trivia_csv_path = os.path.join(data_dir, resource_path("prenomsinfo.csv"))
+            trivia_csv_path = os.path.join(data_dir, "prenomsinfo.csv")
             with open(trivia_csv_path, "wb") as f:
                 f.write(response.content)
             

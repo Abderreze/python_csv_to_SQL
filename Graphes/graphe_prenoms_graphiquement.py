@@ -7,7 +7,7 @@ from graphe_de_ton_prenom import graphe_prenom
 def afficher_graphique(dico_prenoms_sexe):
     result = graphe_prenom(dico_prenoms_sexe)
     if result == True:
-        image = Image.open(resource_path("graphique.png"))  # Remplace par le nom de ton fichier
+        image = Image.open("graphique.png")  # Remplace par le nom de ton fichier
         image = image.resize((500, 400), Image.Resampling.LANCZOS)  # Ajuster la taille si besoin
         photo = ImageTk.PhotoImage(image)
     
