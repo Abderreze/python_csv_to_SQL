@@ -132,13 +132,15 @@ if __name__ == "__main__":
 
     db_path = config.get("paths", "database_path")
     app = ctk.CTk()
-    app.withdraw() # on cache la fenêtre principale au début
+    if os.name == "posix":
+        app.withdraw() # on cache la fenêtre principale au début
 
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("dark-blue")
 
     if check_gen_db(app, db_path):
-        app.deiconify()
+        if os.name == "posix":
+            app.deiconify()
         gui(app, config.get("paths", "database_path")) # potentiellement changé depuis
     else:
         hError = display_notification(app, "Erreur", "La base de données n'a pas pu être chargée ou créée. L'application va fermer.")
