@@ -27,14 +27,28 @@ jobs:
       - name: Find customtkinter path
         id: ctk
         run: |
-          python -c "import customtkinter, os; print(f'::set-output name=path::{os.path.dirname(customtkinter.__file__)}')"
+          echo "CUSTOMTKINTER_PATH=$(python -c "import customtkinter, os; print(os.path.dirname(customtkinter.__file__))')" >> $GITHUB_ENV
 
       - name: Build with Pyinstaller
         run: |
-          pyinstaller --noconfirm --onedir --windowed --add-data "config.ini;." --add-data "Icons;Icons" --add-data "suggestions.csv;." --add-data "Graphes;Graphes" --add-data "Utils;Utils" --add-data "${{ steps.ctk.outputs.path }};customtkinter" prenoms.py
+          pyinstaller --noconfirm --onedir --windowed --add-data "config.ini;." --add-data "Icons;Icons" --add-data "suggestions.csv;." --add-data "%CUSTOMTKINTER_PATH%;customtkinter" prenoms.py
+
+      - name: Zip the Artifact
+        run:
+          powershell -Command "Compress-Archive -Path dist\\* -DestinationPath w64-prenoms.zip
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-exe
-          path: dist/
+          path: w64-prenoms.zip
+
+      - name: Attach artifact to release
+        if: github.event.name == 'release'
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url = ${{ github.event.release.upload_url }}
+          asset_path: w64-prenoms.zip
+          asset_name: w64-prenoms.zip
+          asset_content_type: application/zip
+      
