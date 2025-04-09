@@ -13,7 +13,7 @@ from affichage_graphique import gui
 
 def force_fullscreen(root):
     if os.name == 'nt':
-        hWnd = ctypes.windll.user32.GetParent(root.winfo_ld())
+        hWnd = ctypes.windll.user32.GetParent(root.winfo_id())
         SW_MAXIMIZE = 3
         ctypes.windll.user32.ShowWindow(hWnd, SW_MAXSIZE)
 
