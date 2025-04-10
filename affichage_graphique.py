@@ -8,6 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from random import randint
 from PIL import Image, ImageTk
 from Graphes.graphe_de_ton_prenom import graphe_prenom
+from Graphes.classement import classements
 from collections import defaultdict
 from Utils.path import resource_path
 
@@ -232,7 +233,7 @@ def gui(root, db_prenoms):
         for widget in frame_graphiques.winfo_children():
             if widget not in [label_graphiques, zone_select_search]:
                 widget.destroy()
-
+        
         result, fig = graphe_prenom(db_prenoms, dico_prenoms_sexe)
         if result:
             canvas = FigureCanvasTkAgg(fig, master=frame_graphiques)
