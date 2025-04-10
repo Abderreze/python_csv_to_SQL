@@ -5,6 +5,7 @@ import customtkinter as ctk
 import threading
 import time
 
+
 from Utils.config import set_setting
 from Utils.import_births import import_births_to_sql
 from Utils.import_deaths import import_deaths_to_sql
@@ -20,21 +21,29 @@ def spinner(label, is_running):
     chars = ['⣾','⣽','⣻','⢿','⡿','⣟', '⣯', '⣷']
     while is_running[0]:
         for char in chars:
-            text = char + 'Génération de la base de données ' + char
-            label.configure(text=text)
-            label.update()  # Force the label to update immediately
+            text = char + ' Génération de la base de données ' + char
+            label.after(0, lambda t=text: label.configure(text=t))
             time.sleep(0.1)
-    label.configure(text='Génération finie!          ')
+    label.after(0, lambda: label.configure(text="Génération términée!"))
 
 def start_download_spinner(parent):
     is_running = [True]
+    result = [None]
     
-    spinner_window
+    spinner_window = ctk.CTkToplevel(parent)
+    spinner_window.title('En cours...')
 
-    threading.Thread(target=spinner, args=(label, is_running), daemon=True).start()
-    threading.Thread(target=download_and_process_data, args=(is_running), daemon=True).start()
+    spinner_label = ctk.CTkLabel(spinner_window, text='')
+    spinner_label.pack(padx=20, pady=10)
 
-def download_and_process_data(is_running):
+    spinner_thread = threading.Thread(target=spinner, args=(spinner_label, is_running), daemon=True)
+    download_thread = threading.Thread(target=download_and_process_data, args=(is_running, result), daemon=True)
+    spinner_thread.start()
+    download_thread.start()
+
+    return spinner_thread, download_thread, result
+
+def download_and_process_data(is_running, result):
     # to make sure latest config is fetched
     db_path = config.get("paths", "database_path")
     data_dir = config.get("paths", "data_directory")
@@ -47,9 +56,16 @@ def download_and_process_data(is_running):
     if db_dir:
         os.makedirs(db_dir, exist_ok=True)
     os.makedirs(data_dir, exist_ok=True)
-    import_births_to_sql(db_path, data_dir, births_url)
-    import_deaths_to_sql(db_path, data_dir, deaths_urls, first_deaths_year)
-    import_trivia_to_sql(db_path, data_dir, trivia_url) 
+    try:
+        import_births_to_sql(db_path, data_dir, births_url)
+        import_deaths_to_sql(db_path, data_dir, deaths_urls, first_deaths_year)
+        import_trivia_to_sql(db_path, data_dir, trivia_url)
+        result[0] = True
+    except Exception as e:
+        # If something goes wrong, we catch the exception and pass False
+        print(f"Error occurred during database creation: {e}")
+        result[0] = False
+
     is_running[0] = False
     return True
 
@@ -91,7 +107,10 @@ def ask_for_new_path(parent, db_path):
         set_setting(resource_path("config.ini"), "paths", "database_path", new_path)
         config.read(resource_path("config.ini")) # mettre à jour
         path_window.destroy()
-        if not download_and_process_data():
+        spinner_thread, download_thread, result = start_download_spinner(parent)
+        download_thread.join()
+        success = result[0]
+        if not success:
             erreur_window = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
             erreur_window.after(3000, lambda: erreur_window.destroy())
 
@@ -129,7 +148,10 @@ def check_gen_db(parent, database_path):
             if choice == "Spécifier un chemin existant":
                 ask_for_existing_path(parent)
             elif choice == "Générer au chemin par défaut":
-                if not download_and_process_data():
+                spinner_thread, download_thread, result = start_download_spinner(parent)
+                download_thread.join()
+                success = result[0]
+                if not success:
                     hError = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
                     hError.after(3000, lambda: hError.destroy())
 
