@@ -1,7 +1,7 @@
-import os
+import os #permet la vérification de si c'est un windows ou autre
 import customtkinter as ctk
 import sqlite3
-import matplotlib
+import matplotlib #librairie permettant la création de graphe
 import csv
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -23,24 +23,43 @@ def gui(root, db_prenoms):
     main_container.pack(side="right", expand=True, fill="both")
 
     home_frame = ctk.CTkFrame(main_container, corner_radius=0)
+    search_frame = ctk.CTkFrame(main_container, corner_radius=0)
     stat_frame = ctk.CTkFrame(main_container, corner_radius=0)
-
+    evolution_frame = ctk.CTkFrame(main_container, corner_radius=0)
 
     def show_home():
+        search_frame.pack_forget()
         stat_frame.pack_forget()
+        evolution_frame.pack_forget()
         home_frame.pack(fill="both", expand=True)
 
-    def show_other():
+    def show_search():
         home_frame.pack_forget()
+        stat_frame.pack_forget()
+        evolution_frame.pack_forget()
+        search_frame.pack(fill="both", expand=True)
+
+    def show_stat():
+        home_frame.pack_forget()
+        search_frame.pack_forget()
+        evolution_frame.pack_forget()
         stat_frame.pack(fill="both", expand=True)
+
+    def show_evolution():
+        home_frame.pack_forget()
+        search_frame.pack_forget()
+        stat_frame.pack_forget()
+        evolution_frame.pack(fill="both", expand=True)
 
 # Sidebar with icons
     home_icon = ctk.CTkImage(Image.open(resource_path("Icons/home.png")), size=(24, 24))
+    search_icon = ctk.CTkImage(Image.open(resource_path("Icons/search.png")), size=(24, 24))
     stats_icon = ctk.CTkImage(Image.open(resource_path("Icons/stats.png")), size=(24, 24))
+    evolution_icon = ctk.CTkImage(Image.open(resource_path("Icons/evolution.png")), size=(24, 24))
 
     sidebar = ctk.CTkFrame(root, width=80, fg_color="#1e1e1e", corner_radius=2)
     sidebar.pack(side="left", fill="y", padx=0, pady=0)
-    sidebar.pack_propagate(False)
+    sidebar.pack_propagate(False) #la taille de sidebar n'est pas définis par ces enfants (dans se cas les icons)
 
     ctk.CTkLabel(sidebar, text="", height=20).pack()
 
@@ -52,29 +71,107 @@ def gui(root, db_prenoms):
         height=50,
         corner_radius=10,
         command=show_home,
-        fg_color="#eeeeee",
+        fg_color="#dddddd",
         hover_color="#ffffff"
     )
     home_button.pack(pady=10)
 
-    other_button = ctk.CTkButton(
+    search_button = ctk.CTkButton(
+        sidebar,
+        text="",
+        image=search_icon,
+        width=50,
+        height=50,
+        corner_radius=10,
+        command=show_search,
+        fg_color="#dddddd",
+        hover_color="#ffffff"
+    )
+    search_button.pack(pady=10)
+
+    stat_button = ctk.CTkButton(
         sidebar,
         text="",
         image=stats_icon,
         width=50,
         height=50,
         corner_radius=10,
-        command=show_other,
-        fg_color="#eeeeee",
+        command=show_stat,
+        fg_color="#dddddd",
         hover_color="#ffffff"
     )
-    other_button.pack(pady=10)
+    stat_button.pack(pady=10)
+
+    evolution_button = ctk.CTkButton(
+        sidebar,
+        text="",
+        image=evolution_icon,
+        width=50,
+        height=50,
+        corner_radius=10,
+        command=show_evolution,
+        fg_color="#dddddd",
+        hover_color="#ffffff"
+    )
+    evolution_button.pack(pady=10)
+
+    switch_frame =ctk.CTkFrame(sidebar, fg_color="transparent")
+    switch_frame.pack(side="right", padx=10)
+
+
+    dark_mode_switch = ctk.CTkSwitch(switch_frame, text="", command=lambda: ctk.set_appearance_mode("dark" if dark_mode_switch.get() else "light"))
+    dark_mode_switch.pack(pady=(0, 5))
+    dark_mode_switch.select() # l'active de base
+
+    # pour que le texte soit centré ET en dessous du switch
+    switch_label = ctk.CTkLabel(
+        switch_frame,
+        text="Dark mode",
+        text_color="white",
+        anchor="center",
+        justify="center"
+    )
+    switch_label.pack()
 
     show_home()
 
-# Frame principale de l'accueil
-    main_frame = ctk.CTkFrame(home_frame, corner_radius=20)
+    # Frame principale de l'accueil
+    main_frame = ctk.CTkFrame(search_frame, corner_radius=20)
     main_frame.pack(expand=True, fill="both", padx=10, pady=10)
+
+#===============================================================================================================
+#                                           HOME
+#
+#===============================================================================================================
+    contributors = ctk.CTkImage(Image.open(resource_path("Icons/contributors.png")), size=(240, 190))
+
+    label_bonjour = ctk.CTkLabel(
+        home_frame,
+        text="Bonjour!",
+        font=("TimesNewRoman", 35, "bold")
+    )
+    label_bonjour.pack()
+    label_expliquation = ctk.CTkLabel(
+        home_frame,
+        text="Vous êtes actuellement sur le 'Prénomator 3000 EXTRA MAX V2.0' ou plus communément appelé le 'Prénomator'. \nVous avez été choisi.e afin de pouvoir" \
+            " tester ce petit bijoux de technologie qu'est le Prénomator.\n\n"\
+            " Voici les différents onglets disponible sur la sidebar du Prénomator :\n\n"\
+            "•L'onglet 'Home' sur lequel vous êtes actuellement, vous pouver revenir si jamais vous avez besoin d'aide.\n"\
+            "•L'onglet 'Search' vous permettra de chercher votre nom ou celui de vos amis afin de comparer qui est le plus populaire.\nN'oubliez pas de sélectionner le bon genre ainsi que de cliquer sur valider OU appuyer sur la touche 'enter'. \n"\
+            "•L'onglet 'Statisitques' vous permettra de faire une comparaison avec les chutes ou les pics de naissance en France.\n"\
+            "•L'onglet 'Évolution' vous permettra de voir si le nom est de plus en plus donné ou de moins en moins donné.\n \n"\
+            "Si jamais vous n'aimez pas le noir (pour une raison que l'on ne jugera pas)\nvous pouvez désactiver le dark mode grâce au switch du même nom sur la sidebar.",
+        font=("TimesNewRoman", 25)
+    )
+    label_expliquation.pack()
+
+    contributors_label = ctk.CTkLabel(home_frame, image=contributors, text="")
+    contributors_label.pack(pady=20)
+
+#===============================================================================================================
+#                                           SEARCH
+#
+#===============================================================================================================
 
 # Frame gauche : Infos
     frame_info = ctk.CTkFrame(main_frame, corner_radius=15)
@@ -135,9 +232,8 @@ def gui(root, db_prenoms):
         for widget in frame_graphiques.winfo_children():
             if widget not in [label_graphiques, zone_select]:
                 widget.destroy()
-        
+
         result, fig = graphe_prenom(db_prenoms, dico_prenoms_sexe)
-        print(result)
         if result:
             canvas = FigureCanvasTkAgg(fig, master=frame_graphiques)
             canvas.draw()
@@ -251,7 +347,7 @@ def gui(root, db_prenoms):
         stats_label.configure(text="\n".join(lines))
 
 # Frame du bas avec contrôles
-    bottom_frame = ctk.CTkFrame(home_frame, corner_radius=15)
+    bottom_frame = ctk.CTkFrame(search_frame, corner_radius=15)
     bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
 
     nom_info = ctk.CTkLabel(bottom_frame, text="Nom sélectionné:", font=("Arial", 14))
@@ -274,7 +370,7 @@ def gui(root, db_prenoms):
         if len(typed) <= 3:
             return
         suggestion_frame._scrollbar.set(0, 0)
-        
+
         filtrage = [prenom for prenom in prefixes_prenoms.get(typed.upper(), prefixes_prenoms.get(typed[:4].upper(), [])) if prenom.upper().startswith(typed.upper())]
 
         for suggestion in filtrage:
@@ -297,10 +393,11 @@ def gui(root, db_prenoms):
     add_button = ctk.CTkButton(bottom_frame, text="Ajouter", command=on_enter)
     add_button.pack(side="left", padx=10)
 
-    dark_mode_switch = ctk.CTkSwitch(bottom_frame, text="Dark mode",
-                                   command=lambda: ctk.set_appearance_mode("dark" if dark_mode_switch.get() else "light"))
-    dark_mode_switch.pack(side="right", padx=10)
-    dark_mode_switch.select()
+
+#===============================================================================================================
+#                                           STATISTIQUES
+#
+#===============================================================================================================
 
 # Titre de la vue
     stat_label = ctk.CTkLabel(stat_frame, text="Statistiques Générales sur les naissances en France", font=("Arial", 20))
@@ -323,12 +420,17 @@ def gui(root, db_prenoms):
         conn.close()
 
         fig = Figure(figsize=(8, 5), dpi=100)
+        fig.patch.set_facecolor('#000000')  # Fond de la figure
+
         plot = fig.add_subplot(111)
-        plot.plot(annees, naissances, color='#1f77b4')
-        plot.set_title("Naissances par année")
-        plot.set_xlabel("Année")
-        plot.set_ylabel("Nombre de naissances")
-        plot.grid(True, linestyle='--', alpha=0.7)
+        plot.set_facecolor('#000000')  # Fond de la zone de tracé
+
+        plot.plot(annees, naissances, color='#ff0000')
+        plot.set_title("Naissances par année", color='white')  # Titre en blanc
+        plot.set_xlabel("Année", color='white')  # Label X
+        plot.set_ylabel("Nombre de naissances", color='white')  # Label Y
+        plot.tick_params(colors='white')  # Couleur des ticks
+        plot.grid(True, linestyle='--', alpha=0.3, color='white')  # Grille blanche légère
 
         canvas = FigureCanvasTkAgg(fig, master=stats_frame)
         canvas.draw()
@@ -338,3 +440,9 @@ def gui(root, db_prenoms):
         error_label = ctk.CTkLabel(stats_frame, text=f"Erreur de chargement des données: {str(e)}", text_color="red")
         error_label.pack(pady=50)
 
+
+
+#===============================================================================================================
+#                                           ÉVOLUTIONS
+#
+#===============================================================================================================
