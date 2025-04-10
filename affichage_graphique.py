@@ -230,7 +230,7 @@ def gui(root, db_prenoms):
 # Fonction d'affichage du graphique
     def afficher_graphique(dico_prenoms_sexe):
         for widget in frame_graphiques.winfo_children():
-            if widget not in [label_graphiques, zone_select]:
+            if widget not in [label_graphiques, zone_select_search]:
                 widget.destroy()
 
         result, fig = graphe_prenom(db_prenoms, dico_prenoms_sexe)
@@ -273,15 +273,15 @@ def gui(root, db_prenoms):
         update_stats_display()
 
 # Zone de sélection des prénoms
-    zone_select = ctk.CTkFrame(frame_graphiques)
-    zone_select.pack(pady=10)
+    zone_select_search = ctk.CTkFrame(frame_graphiques)
+    zone_select_search.pack(pady=10)
 
-    prenoms_deja_select = ctk.CTkComboBox(zone_select, values=[], width=200)
+    prenoms_deja_select = ctk.CTkComboBox(zone_select_search, values=[], width=200)
     prenoms_deja_select.set("")
     prenoms_deja_select.pack(side="left", padx=5)
 
     remove_button = ctk.CTkButton(
-        zone_select,
+        zone_select_search,
         text="Retirer",
         command=retire_prenom,
         fg_color="#d9534f",
