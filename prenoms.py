@@ -40,9 +40,8 @@ def start_download_spinner(parent):
     spinner_label = ctk.CTkLabel(spinner_window, text='')
     spinner_label.pack(padx=20, pady=10)
 
-    spinner_thread = threading.Thread(target=spinner, args=(spinner_label, is_running), daemon=True)
+    spinner(spinner_label, is_running)
     download_thread = threading.Thread(target=download_and_process_data, args=(is_running, result), daemon=True)
-    spinner_thread.start()
     download_thread.start()
 
     return spinner_thread, download_thread, result
