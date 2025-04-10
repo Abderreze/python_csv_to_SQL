@@ -2,9 +2,6 @@
 import configparser
 import os
 import customtkinter as ctk
-import threading
-import time
-
 
 from Utils.config import set_setting
 from Utils.import_births import import_births_to_sql
@@ -17,36 +14,7 @@ from affichage_graphique import gui
 config = configparser.ConfigParser()
 config.read(resource_path('config.ini'))
 
-def spinner(label, is_running):
-    chars = ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷']
-    
-    def update_spinner(index=0):
-        if is_running[0]:
-            text = chars[index % len(chars)] + ' Génération de la base de données ' + chars[index % len(chars)]
-            label.configure(text=text)
-            label.after(100, update_spinner, index + 1)
-        else:
-            label.configure(text="Génération terminée!")
-    
-    label.after(0, update_spinner)
-
-def start_download_spinner(parent):
-    is_running = [True]
-    result = [None]
-    
-    spinner_window = ctk.CTkToplevel(parent)
-    spinner_window.title('En cours...')
-
-    spinner_label = ctk.CTkLabel(spinner_window, text='')
-    spinner_label.pack(padx=20, pady=10)
-
-    spinner(spinner_label, is_running)
-    download_thread = threading.Thread(target=download_and_process_data, args=(is_running, result), daemon=True)
-    download_thread.start()
-
-    return spinner_thread, download_thread, result
-
-def download_and_process_data(is_running, result):
+def download_and_process_data():
     # to make sure latest config is fetched
     db_path = config.get("paths", "database_path")
     data_dir = config.get("paths", "data_directory")
@@ -59,17 +27,9 @@ def download_and_process_data(is_running, result):
     if db_dir:
         os.makedirs(db_dir, exist_ok=True)
     os.makedirs(data_dir, exist_ok=True)
-    try:
-        import_births_to_sql(db_path, data_dir, births_url)
-        import_deaths_to_sql(db_path, data_dir, deaths_urls, first_deaths_year)
-        import_trivia_to_sql(db_path, data_dir, trivia_url)
-        result[0] = True
-    except Exception as e:
-        # If something goes wrong, we catch the exception and pass False
-        print(f"Error occurred during database creation: {e}")
-        result[0] = False
-
-    is_running[0] = False
+    import_births_to_sql(db_path, data_dir, births_url)
+    import_deaths_to_sql(db_path, data_dir, deaths_urls, first_deaths_year)
+    import_trivia_to_sql(db_path, data_dir, trivia_url) 
     return True
 
 def ask_for_existing_path(parent):
@@ -110,12 +70,10 @@ def ask_for_new_path(parent, db_path):
         set_setting(resource_path("config.ini"), "paths", "database_path", new_path)
         config.read(resource_path("config.ini")) # mettre à jour
         path_window.destroy()
-        spinner_thread, download_thread, result = start_download_spinner(parent)
-        download_thread.join()
-        success = result[0]
-        if not success:
+        if download_and_process_data():
+            success_window = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
+        else:
             erreur_window = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
-            erreur_window.after(3000, lambda: erreur_window.destroy())
 
         
     generate_button = ctk.CTkButton(path_window, text="Générer la base de données ici", command=generate_at_path)
@@ -151,12 +109,10 @@ def check_gen_db(parent, database_path):
             if choice == "Spécifier un chemin existant":
                 ask_for_existing_path(parent)
             elif choice == "Générer au chemin par défaut":
-                spinner_thread, download_thread, result = start_download_spinner(parent)
-                download_thread.join()
-                success = result[0]
-                if not success:
+                if download_and_process_data():
+                    hSuccess = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
+                else:
                     hError = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
-                    hError.after(3000, lambda: hError.destroy())
 
             elif choice == "Spécifier un nouveau chemin pour la générer":
                 db_path = config.get("paths", "database_path")
@@ -194,7 +150,7 @@ if __name__ == "__main__":
     if app.winfo_exists():
         # selon système, le processus pour mettre l'application en plein-écran change
         if os.name == 'posix':
-            app.after(0, lambda: app.attributes('-zoomed', True)) # marche de tps en tps
+            app.after(0, lambda: app.attributes('zoomed', True))
         elif os.name == 'nt':
             app.after(0, lambda: app.state('zoomed'))
 
