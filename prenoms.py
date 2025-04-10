@@ -2,6 +2,8 @@
 import configparser
 import os
 import customtkinter as ctk
+import threading
+import time
 
 from Utils.config import set_setting
 from Utils.import_births import import_births_to_sql
@@ -14,7 +16,25 @@ from affichage_graphique import gui
 config = configparser.ConfigParser()
 config.read(resource_path('config.ini'))
 
-def download_and_process_data():
+def spinner(label, is_running):
+    chars = ['⣾','⣽','⣻','⢿','⡿','⣟', '⣯', '⣷']
+    while is_running[0]:
+        for char in chars:
+            text = char + 'Génération de la base de données ' + char
+            label.configure(text=text)
+            label.update()  # Force the label to update immediately
+            time.sleep(0.1)
+    label.configure(text='Génération finie!          ')
+
+def start_download_spinner(parent):
+    is_running = [True]
+    
+    spinner_window
+
+    threading.Thread(target=spinner, args=(label, is_running), daemon=True).start()
+    threading.Thread(target=download_and_process_data, args=(is_running), daemon=True).start()
+
+def download_and_process_data(is_running):
     # to make sure latest config is fetched
     db_path = config.get("paths", "database_path")
     data_dir = config.get("paths", "data_directory")
@@ -30,6 +50,7 @@ def download_and_process_data():
     import_births_to_sql(db_path, data_dir, births_url)
     import_deaths_to_sql(db_path, data_dir, deaths_urls, first_deaths_year)
     import_trivia_to_sql(db_path, data_dir, trivia_url) 
+    is_running[0] = False
     return True
 
 def ask_for_existing_path(parent):
@@ -70,10 +91,9 @@ def ask_for_new_path(parent, db_path):
         set_setting(resource_path("config.ini"), "paths", "database_path", new_path)
         config.read(resource_path("config.ini")) # mettre à jour
         path_window.destroy()
-        if download_and_process_data():
-            success_window = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
-        else:
+        if not download_and_process_data():
             erreur_window = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
+            erreur_window.after(3000, lambda: erreur_window.destroy())
 
         
     generate_button = ctk.CTkButton(path_window, text="Générer la base de données ici", command=generate_at_path)
@@ -109,10 +129,9 @@ def check_gen_db(parent, database_path):
             if choice == "Spécifier un chemin existant":
                 ask_for_existing_path(parent)
             elif choice == "Générer au chemin par défaut":
-                if download_and_process_data():
-                    hSuccess = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
-                else:
+                if not download_and_process_data():
                     hError = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
+                    hError.after(3000, lambda: hError.destroy())
 
             elif choice == "Spécifier un nouveau chemin pour la générer":
                 db_path = config.get("paths", "database_path")
@@ -150,7 +169,7 @@ if __name__ == "__main__":
     if app.winfo_exists():
         # selon système, le processus pour mettre l'application en plein-écran change
         if os.name == 'posix':
-            app.after(0, lambda: app.attributes('zoomed', True))
+            app.after(0, lambda: app.attributes('-zoomed', True)) # marche de tps en tps
         elif os.name == 'nt':
             app.after(0, lambda: app.state('zoomed'))
 
