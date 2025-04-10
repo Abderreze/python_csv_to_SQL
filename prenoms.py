@@ -18,13 +18,17 @@ config = configparser.ConfigParser()
 config.read(resource_path('config.ini'))
 
 def spinner(label, is_running):
-    chars = ['⣾','⣽','⣻','⢿','⡿','⣟', '⣯', '⣷']
-    while is_running[0]:
-        for char in chars:
-            text = char + ' Génération de la base de données ' + char
-            label.after(0, lambda t=text: label.configure(text=t))
-            time.sleep(0.1)
-    label.after(0, lambda: label.configure(text="Génération términée!"))
+    chars = ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷']
+    
+    def update_spinner(index=0):
+        if is_running[0]:
+            text = chars[index % len(chars)] + ' Génération de la base de données ' + chars[index % len(chars)]
+            label.configure(text=text)
+            label.after(100, update_spinner, index + 1)
+        else:
+            label.configure(text="Génération terminée!")
+    
+    label.after(0, update_spinner)
 
 def start_download_spinner(parent):
     is_running = [True]
