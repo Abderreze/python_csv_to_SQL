@@ -11,6 +11,7 @@ from Graphes.graphe_de_ton_prenom import graphe_prenom
 from collections import defaultdict
 from Utils.path import resource_path
 
+naiss_rangs_deja_faits = {} # permettra d'éviter de recalculer pour des prénoms déjà sélectionnés
 def gui(root, db_prenoms):
     matplotlib.use('Agg')
 
@@ -228,19 +229,24 @@ def gui(root, db_prenoms):
     prenoms_select = []
 
 # Fonction d'affichage du graphique
-    def afficher_graphique(dico_prenoms_sexe):
+    def afficher_graphique(dico_prenoms_sexe, prenoms_deja_etudies):
+        
         for widget in frame_graphiques.winfo_children():
             if widget not in [label_graphiques, zone_select_search]:
                 widget.destroy()
 
-        result, fig = graphe_prenom(db_prenoms, dico_prenoms_sexe)
+        result, fig, prenoms_deja_etudies = graphe_prenom(db_prenoms, dico_prenoms_sexe, prenoms_deja_etudies)
         if result:
             canvas = FigureCanvasTkAgg(fig, master=frame_graphiques)
             canvas.draw()
             canvas.get_tk_widget().pack()
 
+        return prenoms_deja_etudies.copy() # évite les effets de bord
+
 # Gestion de l'ajout de prénom
     def on_enter(event=None):
+        # on peut pas return quand c'est des évèmenent comme ça, donc pas d'autre moyen pour mettre à jour ces valurs
+        global naiss_rangs_deja_faits 
         prenom = search.get()
         sexe = sexe_saisi.get()
         sexe_str = "masculin" if sexe == 1 else "féminin"
@@ -250,7 +256,7 @@ def gui(root, db_prenoms):
             prenoms_select.append((prenom, sexe_str))
 
         prenoms_deja_select.configure(values=[f"{p} {s}" for p, s in prenoms_select])
-        afficher_graphique(prenoms_sexe_select)
+        naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
         update_stats_display()
 
 # Retrait d'un prénom
@@ -511,7 +517,9 @@ def gui(root, db_prenoms):
 
         if not prenom:
             return
-
+        autocomplete_frame.pack_forget()
+            #for widget in autocomplete_frame.winfo_children():
+            #widget.destroy()
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
