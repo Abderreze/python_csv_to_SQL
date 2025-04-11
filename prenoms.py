@@ -26,7 +26,7 @@ def spinner(label, stop_event):
             label.configure(text=text)
             label.update()  # Force the label to update immediately
             time.sleep(0.1)
-    label.destroy()
+    label.winfo_toplevel().destroy()
     return True
 
 
