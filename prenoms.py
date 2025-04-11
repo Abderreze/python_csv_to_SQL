@@ -2,6 +2,8 @@
 import configparser
 import os
 import customtkinter as ctk
+import time
+import threading
 
 from Utils.config import set_setting
 from Utils.import_births import import_births_to_sql
@@ -14,7 +16,32 @@ from affichage_graphique import gui
 config = configparser.ConfigParser()
 config.read(resource_path('config.ini'))
 
-def download_and_process_data():
+def spinner(label, stop_event):
+    chars = ['⣾','⣽','⣻','⢿','⡿','⣟', '⣯', '⣷']
+    while not stop_event.is_set():
+        for char in chars:
+            if stop_event.is_set():
+                break
+            text = 'Working... ' + char
+            label.after(0, lambda t=text: label.configure(text=t))
+            time.sleep(0.1)
+
+
+
+def initialize_db(parent):
+
+    running_window = ctk.CTkToplevel(parent)
+    running_label = ctk.CTkLabel(running_window, text="")
+    running_label.pack(padx=20, pady=10)
+
+    stop_event = threading.Event()
+
+    spinner_thread = threading.Thread(target=spinner, args=(running_label, stop_event), daemon=True)
+    spinner_thread.start()
+
+    return download_and_process_data(stop_event)
+
+def download_and_process_data(stop_event):
     # to make sure latest config is fetched
     db_path = config.get("paths", "database_path")
     data_dir = config.get("paths", "data_directory")
@@ -30,6 +57,7 @@ def download_and_process_data():
     import_births_to_sql(db_path, data_dir, births_url)
     import_deaths_to_sql(db_path, data_dir, deaths_urls, first_deaths_year)
     import_trivia_to_sql(db_path, data_dir, trivia_url) 
+    stop_event.set()
     return True
 
 def ask_for_existing_path(parent):
@@ -70,7 +98,7 @@ def ask_for_new_path(parent, db_path):
         set_setting(resource_path("config.ini"), "paths", "database_path", new_path)
         config.read(resource_path("config.ini")) # mettre à jour
         path_window.destroy()
-        if download_and_process_data():
+        if initialize_db(parent):
             success_window = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
         else:
             erreur_window = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
@@ -109,7 +137,7 @@ def check_gen_db(parent, database_path):
             if choice == "Spécifier un chemin existant":
                 ask_for_existing_path(parent)
             elif choice == "Générer au chemin par défaut":
-                if download_and_process_data():
+                if initialize_db(parent):
                     hSuccess = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
                 else:
                     hError = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
