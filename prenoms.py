@@ -22,9 +22,12 @@ def spinner(label, stop_event):
         for char in chars:
             if stop_event.is_set():
                 break
-            text = 'Working... ' + char
-            label.after(0, lambda t=text: label.configure(text=t))
+            text = char + " Base de données en cours d'initialization"
+            label.configure(text=text)
+            label.update()  # Force the label to update immediately
             time.sleep(0.1)
+    label.destroy()
+    return True
 
 
 
@@ -36,10 +39,11 @@ def initialize_db(parent):
 
     stop_event = threading.Event()
 
-    spinner_thread = threading.Thread(target=spinner, args=(running_label, stop_event), daemon=True)
-    spinner_thread.start()
 
-    return download_and_process_data(stop_event)
+    download_thread = threading.Thread(target=download_and_process_data, args=(stop_event,), daemon=True)
+    download_thread.start()
+
+    return spinner(running_label, stop_event)
 
 def download_and_process_data(stop_event):
     # to make sure latest config is fetched
@@ -58,7 +62,6 @@ def download_and_process_data(stop_event):
     import_deaths_to_sql(db_path, data_dir, deaths_urls, first_deaths_year)
     import_trivia_to_sql(db_path, data_dir, trivia_url) 
     stop_event.set()
-    return True
 
 def ask_for_existing_path(parent):
     path_window = ctk.CTkToplevel(parent)
