@@ -5,6 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from matplotlib.figure import Figure
+from matplotlib.ticker import ScalarFormatter
 plt.style.use('dark_background')
 def graphe_prenom(db_prenoms: str, prenoms_sexes: dict, naiss_rangs_connus: dict):
 
@@ -23,8 +24,11 @@ def graphe_prenom(db_prenoms: str, prenoms_sexes: dict, naiss_rangs_connus: dict
     plot_naissances.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
     plot_naissances.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
     
+    plot_rangs.xaxis.set_major_locator(ticker.MaxNLocator(nbins=(2022 - 1900)//10, integer=True))
     plot_rangs.invert_yaxis()
     plot_rangs.set_yscale('log')
+    plot_rangs.yaxis.set_major_formatter(ScalarFormatter())
+
     existe = True
     curseur.execute("""SELECT DISTINCT annais FROM prenoms;""")
     result = curseur.fetchall()
@@ -61,21 +65,20 @@ def graphe_prenom(db_prenoms: str, prenoms_sexes: dict, naiss_rangs_connus: dict
             existe = (True and existe)
             
             if prenom_sexe not in naiss_rangs_deja_calcules or naiss_rangs_deja_calcules[prenom_sexe]['rangs'] == None:
-                rangs_par_annees = {}
-                for annee in annees:
-                    curseur.execute("""
-                        SELECT rang 
-                        FROM (
-                            SELECT *,
-                            RANK() OVER (ORDER BY nombre DESC) as rang
-                            FROM prenoms
-                            WHERE annais = ? AND preusuel != '_PRENOMS_RARES' AND sexe = ?
-                        )
-                        WHERE preusuel = ?
-                    """, (annee, sexe, prenom.upper()))
-                    result =curseur.fetchall()
-                    if result:
-                        rangs_par_annees[annee] = result[0][0]
+                curseur.execute("""
+                    SELECT annais, rang FROM (
+                        SELECT annais, preusuel, nombre,
+                               RANK() OVER (PARTITION BY annais ORDER BY nombre DESC) as rang
+                        FROM prenoms
+                        WHERE preusuel != '_PRENOMS_RARES' AND sexe = ?
+                    )
+                    WHERE preusuel = ?
+                     """, (sexe, prenom.upper()))
+                result = curseur.fetchall()
+                if result:
+                    for annee, rang in result:
+
+                        rangs_par_annees = {annee : rang for annee, rang in result if annee != 'XXXX'}
                 naiss_rangs_deja_calcules[prenom_sexe]['rangs'] = rangs_par_annees
             else:
                 rangs_par_annees = naiss_rangs_deja_calcules[prenom_sexe]['rangs']
