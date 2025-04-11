@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from matplotlib.figure import Figure
 plt.style.use('dark_background')
-def graphe_prenom(db_prenoms, prenoms_sexes: dict):
+def graphe_prenom(db_prenoms: str, prenoms_sexes: dict, naiss_rangs_connus: dict):
 
     liaison = sqlite3.connect(db_prenoms)
     curseur = liaison.cursor()
@@ -26,15 +26,27 @@ def graphe_prenom(db_prenoms, prenoms_sexes: dict):
     plot_rangs.invert_yaxis()
     plot_rangs.set_yscale('log')
     existe = True
+    curseur.execute("""SELECT DISTINCT annais FROM prenoms;""")
+    result = curseur.fetchall()
+    annees = sorted([int(uplet[0]) for uplet in result if uplet[0] != 'XXXX'])
+    naiss_rangs_deja_calcules = naiss_rangs_connus.copy() # évite les effets de bord (pour les beaux yeux de RDB car elle a pas l'air de savoir ce que c'est)
     for prenom_sexe, couleur in prenoms_sexes.items():
         prenom, sexe = prenom_sexe
         if prenom.upper() in prenoms:
-            curseur.execute("SELECT annais, nombre FROM prenoms WHERE preusuel LIKE ? AND sexe = ? ORDER BY annais ;", (prenom.upper(), sexe))
+            if prenom_sexe not in naiss_rangs_deja_calcules:
+                curseur.execute("SELECT annais, nombre FROM prenoms WHERE preusuel LIKE ? AND sexe = ? ORDER BY annais ;", (prenom.upper(), sexe))
 
-            result = curseur.fetchall()
+                result = curseur.fetchall()
+                dico_naissances = {annee : nombre for annee, nombre in result if annee != 'XXXX'}
+                naiss_rangs_deja_calcules[prenom_sexe] = {}
+                naiss_rangs_deja_calcules[prenom_sexe]['naissance'] = dico_naissances
+                naiss_rangs_deja_calcules[prenom_sexe]['rangs'] = None
+            else:
 
-            x = [int(annee) for annee, nombre in result if annee != 'XXXX']
-            y = [int(nombre) for annee, nombre in result if annee != 'XXXX']
+                dico_naissances = naiss_rangs_deja_calcules[prenom_sexe]['naissance']
+
+            x = list(dico_naissances.keys())
+            y = list(dico_naissances.values())
             indice_max = y.index(max(y))
             x_max = x[indice_max]
             y_max = y[indice_max]
@@ -47,31 +59,33 @@ def graphe_prenom(db_prenoms, prenoms_sexes: dict):
             plot_naissances.set_title("Graphique avec abscisse du maximum")
             plot_naissances.legend()
             existe = (True and existe)
-
-            annees = sorted([int(uplet[0]) for uplet in result if uplet[0] != 'XXXX'])
-            rangs_par_annees = {}
-            for annee in annees:
-                curseur.execute("""
-                    SELECT rang 
-                    FROM (
-                        SELECT *,
-                        RANK() OVER (ORDER BY nombre DESC) as rang
-                        FROM prenoms
-                        WHERE annais = ? AND preusuel != '_PRENOMS_RARES' AND sexe = ?
-                    )
-                    WHERE preusuel = ?
-                """, (annee, sexe, prenom.upper()))
-                result =curseur.fetchall()
-                if result:
-                    rangs_par_annees[annee] = result[0][0]
-
+            
+            if prenom_sexe not in naiss_rangs_deja_calcules or naiss_rangs_deja_calcules[prenom_sexe]['rangs'] == None:
+                rangs_par_annees = {}
+                for annee in annees:
+                    curseur.execute("""
+                        SELECT rang 
+                        FROM (
+                            SELECT *,
+                            RANK() OVER (ORDER BY nombre DESC) as rang
+                            FROM prenoms
+                            WHERE annais = ? AND preusuel != '_PRENOMS_RARES' AND sexe = ?
+                        )
+                        WHERE preusuel = ?
+                    """, (annee, sexe, prenom.upper()))
+                    result =curseur.fetchall()
+                    if result:
+                        rangs_par_annees[annee] = result[0][0]
+                naiss_rangs_deja_calcules[prenom_sexe]['rangs'] = rangs_par_annees
+            else:
+                rangs_par_annees = naiss_rangs_deja_calcules[prenom_sexe]['rangs']
             x, y = list(rangs_par_annees.keys()), list(rangs_par_annees.values())
-            plot_rangs.plot(x, y, marker=None, linestyle='--', color=couleur)
+            plot_rangs.plot(x, y, marker=None, linestyle='-', color=couleur)
         else:
             print("Ce prénom n'est pas dans la bdd")
     #        curseur.execute("SELECT DISTINCT preusuel FROM prenoms WHERE ")
             existe = (False and existe)
 
-    return existe, fig
+    return existe, fig, naiss_rangs_deja_calcules
 if __name__ == '__main__':
     graphe_prenom("gabriel", 1)

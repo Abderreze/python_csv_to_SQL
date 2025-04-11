@@ -11,7 +11,9 @@ from Graphes.graphe_de_ton_prenom import graphe_prenom
 from Graphes.classement import classements
 from collections import defaultdict
 from Utils.path import resource_path
+from time import time
 
+naiss_rangs_deja_faits = {} # permet d'accèler le processus pour éviter de recalculer pour des prénoms déjà sélectionner
 def gui(root, db_prenoms):
     matplotlib.use('Agg')
 
@@ -27,7 +29,6 @@ def gui(root, db_prenoms):
     search_frame = ctk.CTkFrame(main_container, corner_radius=0)
     stat_frame = ctk.CTkFrame(main_container, corner_radius=0)
     evolution_frame = ctk.CTkFrame(main_container, corner_radius=0)
-
     def show_home():
         search_frame.pack_forget()
         stat_frame.pack_forget()
@@ -229,19 +230,22 @@ def gui(root, db_prenoms):
     prenoms_select = []
 
 # Fonction d'affichage du graphique
-    def afficher_graphique(dico_prenoms_sexe):
+    def afficher_graphique(dico_prenoms_sexe, calculs_deja_faits):
         for widget in frame_graphiques.winfo_children():
             if widget not in [label_graphiques, zone_select_search]:
                 widget.destroy()
         
-        result, fig = graphe_prenom(db_prenoms, dico_prenoms_sexe)
+        result, fig, calculs_deja_faits = graphe_prenom(db_prenoms, dico_prenoms_sexe, calculs_deja_faits)
         if result:
             canvas = FigureCanvasTkAgg(fig, master=frame_graphiques)
             canvas.draw()
             canvas.get_tk_widget().pack()
+        return calculs_deja_faits
 
 # Gestion de l'ajout de prénom
     def on_enter(event=None):
+        global naiss_rangs_deja_faits
+        print(naiss_rangs_deja_faits)
         prenom = search.get()
         sexe = sexe_saisi.get()
         sexe_str = "masculin" if sexe == 1 else "féminin"
@@ -251,7 +255,9 @@ def gui(root, db_prenoms):
             prenoms_select.append((prenom, sexe_str))
 
         prenoms_deja_select.configure(values=[f"{p} {s}" for p, s in prenoms_select])
-        afficher_graphique(prenoms_sexe_select)
+        debut = time()
+        naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
+        print(time() - debut)
         update_stats_display()
 
 # Retrait d'un prénom
