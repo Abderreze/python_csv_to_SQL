@@ -34,6 +34,7 @@ def spinner(label, stop_event):
 def initialize_db(parent):
 
     running_window = ctk.CTkToplevel(parent)
+    running_window.title("Initialization base de données")
     running_label = ctk.CTkLabel(running_window, text="")
     running_label.pack(padx=20, pady=10)
 
