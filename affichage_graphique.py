@@ -8,12 +8,9 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from random import randint
 from PIL import Image, ImageTk
 from Graphes.graphe_de_ton_prenom import graphe_prenom
-from Graphes.classement import classements
 from collections import defaultdict
 from Utils.path import resource_path
-from time import time
 
-naiss_rangs_deja_faits = {} # permet d'accèler le processus pour éviter de recalculer pour des prénoms déjà sélectionner
 def gui(root, db_prenoms):
     matplotlib.use('Agg')
 
@@ -29,6 +26,7 @@ def gui(root, db_prenoms):
     search_frame = ctk.CTkFrame(main_container, corner_radius=0)
     stat_frame = ctk.CTkFrame(main_container, corner_radius=0)
     evolution_frame = ctk.CTkFrame(main_container, corner_radius=0)
+
     def show_home():
         search_frame.pack_forget()
         stat_frame.pack_forget()
@@ -156,13 +154,13 @@ def gui(root, db_prenoms):
     label_expliquation = ctk.CTkLabel(
         home_frame,
         text="Vous êtes actuellement sur le 'Prénomator 3000 EXTRA MAX V2.0' ou plus communément appelé le 'Prénomator'. \nVous avez été choisi.e afin de pouvoir" \
-            " tester ce petit bijoux de technologie qu'est le Prénomator.\n\n"\
-            " Voici les différents onglets disponible sur la sidebar du Prénomator :\n\n"\
-            "•L'onglet 'Home' sur lequel vous êtes actuellement, vous pouver revenir si jamais vous avez besoin d'aide.\n"\
-            "•L'onglet 'Search' vous permettra de chercher votre nom ou celui de vos amis afin de comparer qui est le plus populaire.\nN'oubliez pas de sélectionner le bon genre ainsi que de cliquer sur valider OU appuyer sur la touche 'enter'. \n"\
-            "•L'onglet 'Statisitques' vous permettra de faire une comparaison avec les chutes ou les pics de naissance en France.\n"\
-            "•L'onglet 'Évolution' vous permettra de voir si le nom est de plus en plus donné ou de moins en moins donné.\n \n"\
-            "Si jamais vous n'aimez pas le noir (pour une raison que l'on ne jugera pas)\nvous pouvez désactiver le dark mode grâce au switch du même nom sur la sidebar.",
+            " tester ce petit bijou de technologie qu'est le Prénomator.\n\n"\
+            " Voici les différents onglets disponibles sur la sidebar du Prénomator :\n\n"\
+            "•Onglet 'Home': retour à l'accueil.\n"\
+            "•Onglet 'Search': recherche de votre nom et de sa popularité.\nN'oubliez pas de sélectionner le bon genre ainsi que de cliquer sur valider OU appuyer sur la touche 'enter'. \n"\
+            "•Onglet 'Statistiques': affichage des chutes et des pics de naissances en France.\n"\
+            "•Onglet 'Évolution': affichage de l'évolution du nom.\n \n"\
+            "Vous pouvez désactiver le 'dark mode' grâce au switch homonyme sur la sidebar.",
         font=("TimesNewRoman", 25)
     )
     label_expliquation.pack()
@@ -230,22 +228,19 @@ def gui(root, db_prenoms):
     prenoms_select = []
 
 # Fonction d'affichage du graphique
-    def afficher_graphique(dico_prenoms_sexe, calculs_deja_faits):
+    def afficher_graphique(dico_prenoms_sexe):
         for widget in frame_graphiques.winfo_children():
             if widget not in [label_graphiques, zone_select_search]:
                 widget.destroy()
-        
-        result, fig, calculs_deja_faits = graphe_prenom(db_prenoms, dico_prenoms_sexe, calculs_deja_faits)
+
+        result, fig = graphe_prenom(db_prenoms, dico_prenoms_sexe)
         if result:
             canvas = FigureCanvasTkAgg(fig, master=frame_graphiques)
             canvas.draw()
             canvas.get_tk_widget().pack()
-        return calculs_deja_faits
 
 # Gestion de l'ajout de prénom
     def on_enter(event=None):
-        global naiss_rangs_deja_faits
-        print(naiss_rangs_deja_faits)
         prenom = search.get()
         sexe = sexe_saisi.get()
         sexe_str = "masculin" if sexe == 1 else "féminin"
@@ -255,9 +250,7 @@ def gui(root, db_prenoms):
             prenoms_select.append((prenom, sexe_str))
 
         prenoms_deja_select.configure(values=[f"{p} {s}" for p, s in prenoms_select])
-        debut = time()
-        naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
-        print(time() - debut)
+        afficher_graphique(prenoms_sexe_select)
         update_stats_display()
 
 # Retrait d'un prénom
@@ -453,3 +446,143 @@ def gui(root, db_prenoms):
 #                                           ÉVOLUTIONS
 #
 #===============================================================================================================
+    # Zone Titre
+    evolution_label = ctk.CTkLabel(evolution_frame, text="Évolution : Différence Décès - Naissances", font=("Arial", 20))
+    evolution_label.pack(pady=20)
+
+    # Zone du haut pour les contrôles
+    evolution_controls = ctk.CTkFrame(evolution_frame, corner_radius=15)
+    evolution_controls.pack(pady=10)
+
+    evolution_prenom_var = ctk.StringVar()
+    evolution_entry = ctk.CTkEntry(evolution_controls, textvariable=evolution_prenom_var, placeholder_text="Tape ton prénom ici...", width=200)
+    evolution_entry.pack(side="left", padx=10)
+
+    # Simule une Listbox avec un CTkFrame + CTkButtons
+    autocomplete_frame = ctk.CTkFrame(evolution_controls, corner_radius=8)
+    autocomplete_frame.pack_forget()
+
+    def update_autocomplete(event=None):
+        typed = evolution_prenom_var.get().upper()
+        for widget in autocomplete_frame.winfo_children():
+            widget.destroy()
+        if not typed:
+            autocomplete_frame.pack_forget()
+            return
+        conn = sqlite3.connect(db_prenoms)
+        cursor = conn.cursor()
+        cursor.execute("SELECT DISTINCT preusuel FROM prenoms WHERE UPPER(preusuel) LIKE ? ORDER BY preusuel ASC LIMIT 10", (typed + '%',))
+        results = cursor.fetchall()
+        conn.close()
+
+        if results:
+            for item in results:
+                suggestion = item[0]
+                btn = ctk.CTkButton(autocomplete_frame, text=suggestion, width=100, command=lambda s=suggestion: select_from_autocomplete(s))
+                btn.pack(anchor="w", padx=5, pady=1)
+            autocomplete_frame.pack(side="left", padx=5)
+        else:
+            autocomplete_frame.pack_forget()
+
+    def select_from_autocomplete(value):
+        evolution_prenom_var.set(value)
+        autocomplete_frame.pack_forget()
+
+    evolution_entry.bind("<KeyRelease>", update_autocomplete)
+
+    evolution_sexe_var = ctk.IntVar(value=1)
+    evolution_radio_h = ctk.CTkRadioButton(evolution_controls, text="Homme", variable=evolution_sexe_var, value=1)
+    evolution_radio_h.pack(side="left", padx=5)
+    evolution_radio_f = ctk.CTkRadioButton(evolution_controls, text="Femme", variable=evolution_sexe_var, value=2)
+    evolution_radio_f.pack(side="left", padx=5)
+
+    evolution_button = ctk.CTkButton(evolution_controls, text="Afficher", command=lambda: afficher_graphe_evolution(db_prenoms))
+    evolution_button.pack(side="left", padx=10)
+
+    evolution_graph_frame = ctk.CTkFrame(evolution_frame, corner_radius=15)
+    evolution_graph_frame.pack(expand=True, fill="both", padx=20, pady=10)
+
+    def afficher_graphe_evolution(db_path):
+        for widget in evolution_graph_frame.winfo_children():
+            widget.destroy()
+
+        prenom = evolution_prenom_var.get().strip().upper()
+        sexe = evolution_sexe_var.get()
+
+        if not prenom:
+            return
+
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        # Naissances
+        cursor.execute("""
+            SELECT annais, SUM(nombre) 
+            FROM prenoms 
+            WHERE preusuel = ? AND sexe = ? AND annais != 'XXXX'
+            GROUP BY annais;
+        """, (prenom, sexe))
+        naissances_data = cursor.fetchall()
+        naissances = {int(annee): int(nb) for annee, nb in naissances_data}
+
+        # Décès
+        cursor.execute("""
+            SELECT SUBSTR(CAST(date_deces AS TEXT), 1, 4) AS annee, COUNT(*) 
+            FROM deces 
+            WHERE UPPER(prenom) LIKE ? AND sexe = ?
+            AND LENGTH(date_deces) = 8
+            AND CAST(SUBSTR(CAST(date_deces AS TEXT), 1, 4) AS INTEGER) BETWEEN 1900 AND 2025
+            GROUP BY annee
+            HAVING annee IS NOT NULL;
+        """, (prenom + '%', "M" if sexe == 1 else "F"))
+        deces_data = cursor.fetchall()
+        deces = {int(annee): int(nb) for annee, nb in deces_data if annee and annee.isdigit()}
+
+        conn.close()
+
+        toutes_annees = sorted(set(naissances.keys()).union(deces.keys()))
+
+        annees_valides = []
+        valeurs_diff = []
+        for annee in toutes_annees:
+            n = naissances.get(annee, 0)
+            d = deces.get(annee, 0)
+            annees_valides.append(annee)
+            valeurs_diff.append(n - d)
+
+        if len(valeurs_diff) < 2:
+            return
+
+        derivee = []
+        annees_derivee = []
+        for i in range(1, len(valeurs_diff)):
+            if valeurs_diff[i - 1] != 0:
+                variation = ((valeurs_diff[i] - valeurs_diff[i - 1]) / abs(valeurs_diff[i - 1])) * 100
+                derivee.append(variation)
+                annees_derivee.append(annees_valides[i])
+
+        # Plot
+        fig = Figure(figsize=(8, 5), dpi=100)
+        fig.patch.set_facecolor('#000000')
+        ax = fig.add_subplot(111)
+        ax.set_facecolor('#000000')
+
+        # Remplir la zone sous la courbe
+        ax.fill_between(annees_derivee, derivee, color="skyblue", alpha=0.4)
+
+        # Tracer la courbe
+        for i in range(1, len(derivee)):
+            x = [annees_derivee[i - 1], annees_derivee[i]]
+            y = [derivee[i - 1], derivee[i]]
+            couleur = 'lime' if y[1] >= 0 else 'red'
+            ax.plot(x, y, color=couleur)
+
+        ax.set_title(f"Dérivée (%) de (Naissances - Décès) - {prenom}", color='white')
+        ax.set_xlabel("Année", color='white')
+        ax.set_ylabel("Variation en %", color='white')
+        ax.tick_params(colors='white')
+        ax.grid(True, linestyle='--', alpha=0.3, color='white')
+
+        canvas = FigureCanvasTkAgg(fig, master=evolution_graph_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(expand=True, fill="both", padx=10, pady=10)
