@@ -1,8 +1,9 @@
-![image](https://github.com/user-attachments/assets/c0ea3bed-6ea3-4fff-8bf3-bf3a18dfc82a)
 
 ![YIPEEEE](https://media.tenor.com/qJRMLPlR3_8AAAAj/maxwell-cat.gif)
-![arab](h[ttps://media1.tenor.com/m/gQD88rOotgkAAAAd/arab-cat-cat-arab.gif](https://c.tenor.com/gQD88rOotgkAAAAd/tenor.gif))
-![OIIA mais pas vraiment](https://media.gifdb.com/cat-dancing-cute-hug-crazy-shake-kjt7dwk17q63dic7.gif)
+![](h[ttps://media1.tenor.com/m/gQD88rOotgkAAAAd/arab-cat-cat-arab.gif](https://c.tenor.com/gQD88rOotgkAAAAd/tenor.gif))
+![](https://media.gifdb.com/cat-dancing-cute-hug-crazy-shake-kjt7dwk17q63dic7.gif)
+![image](https://github.com/user-attachments/assets/c0ea3bed-6ea3-4fff-8bf3-bf3a18dfc82a)
+
 silence  
 fuck off  
 Pourquoi tant de violence, regarde _ein truk an eetalike_, **ou en gras (comme les américains)**  
