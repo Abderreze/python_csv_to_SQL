@@ -22,7 +22,7 @@ def spinner(label, stop_event):
         for char in chars:
             if stop_event.is_set():
                 break
-            text = char + " Base de données en cours d'initialization"
+            text = char + " Base de données en cours d'initialisation"
             label.configure(text=text)
             label.update()  # Force the label to update immediately
             time.sleep(0.1)
@@ -31,10 +31,10 @@ def spinner(label, stop_event):
 
 
 
-def initialize_db(parent):
+def initialise_db(parent):
 
     running_window = ctk.CTkToplevel(parent)
-    running_window.title("Initialization base de données")
+    running_window.title("initialisation base de données")
     running_label = ctk.CTkLabel(running_window, text="")
     running_label.pack(padx=20, pady=10)
 
@@ -102,7 +102,7 @@ def ask_for_new_path(parent, db_path):
         set_setting(resource_path("config.ini"), "paths", "database_path", new_path)
         config.read(resource_path("config.ini")) # mettre à jour
         path_window.destroy()
-        if initialize_db(parent):
+        if initialise_db(parent):
             success_window = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
         else:
             erreur_window = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
@@ -141,7 +141,7 @@ def check_gen_db(parent, database_path):
             if choice == "Spécifier un chemin existant":
                 ask_for_existing_path(parent)
             elif choice == "Générer au chemin par défaut":
-                if initialize_db(parent):
+                if initialise_db(parent):
                     hSuccess = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
                 else:
                     hError = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
