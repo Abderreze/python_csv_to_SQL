@@ -20,15 +20,16 @@ def gui(root, db_prenoms):
 
     root.title("Prénomator 3000 EXTRA MAX V2.0")
 
+    # Création de la fenêtre définie par défaut en fullscreen
     main_container = ctk.CTkFrame(root, corner_radius=0)
     main_container.pack(side="right", expand=True, fill="both")
-
+    # Création des frames qui seront nécessaire
     home_frame = ctk.CTkFrame(main_container, corner_radius=0)
     search_frame = ctk.CTkFrame(main_container, corner_radius=0)
     stat_frame = ctk.CTkFrame(main_container, corner_radius=0)
     evolution_frame = ctk.CTkFrame(main_container, corner_radius=0)
     classement_frame = ctk.CTkFrame(main_container, corner_radius=0)
-
+    # Fonctions permettant de changer de frame grâce aux icons de la Sidebar
     def show_home():
         search_frame.pack_forget()
         stat_frame.pack_forget()
@@ -64,19 +65,19 @@ def gui(root, db_prenoms):
         evolution_frame.pack_forget()
         classement_frame.pack(fill="both", expand=True)
 
-# Sidebar with icons
+    # Imports des icons
     home_icon = ctk.CTkImage(Image.open(resource_path("Icons/home.png")), size=(24, 24))
     search_icon = ctk.CTkImage(Image.open(resource_path("Icons/search.png")), size=(24, 24))
     stats_icon = ctk.CTkImage(Image.open(resource_path("Icons/stats.png")), size=(24, 24))
     evolution_icon = ctk.CTkImage(Image.open(resource_path("Icons/evolution.png")), size=(24, 24))
     classement_icon = ctk.CTkImage(Image.open(resource_path("Icons/classement.png")), size=(24, 24))
-
+    # Création de la frame servant de sidebar
     sidebar = ctk.CTkFrame(root, width=80, fg_color="#1e1e1e", corner_radius=2)
     sidebar.pack(side="left", fill="y", padx=0, pady=0)
     sidebar.pack_propagate(False) #la taille de sidebar n'est pas définis par ces enfants (dans se cas les icons)
 
     ctk.CTkLabel(sidebar, text="", height=20).pack()
-
+    # Création des bouttons de la sidebars puis on affiche ces mêmes bouttons
     home_button = ctk.CTkButton(
         sidebar,
         text="",
@@ -141,25 +142,24 @@ def gui(root, db_prenoms):
         hover_color="#ffffff"
     )
     classement_button.pack(pady=10)
-
+    # Création de la "mini-frame" contenant le switch du dark-mode AINSI QUE le texte l'accompagnant car sinon la texte est "coupé" par la sidebar
     switch_frame =ctk.CTkFrame(sidebar, fg_color="transparent")
     switch_frame.pack(side="right", padx=10)
-
-
+    # Création du switch
     dark_mode_switch = ctk.CTkSwitch(switch_frame, text="", command=lambda: ctk.set_appearance_mode("dark" if dark_mode_switch.get() else "light"))
     dark_mode_switch.pack(pady=(0, 5))
     dark_mode_switch.select() # l'active de base
 
-    # pour que le texte soit centré ET en dessous du switch
+    # Pour que le texte soit centré ET en dessous du switch
     switch_label = ctk.CTkLabel(
         switch_frame,
-        text="Dark mode",
+        text="Dark-mode",
         text_color="white",
         anchor="center",
         justify="center"
     )
     switch_label.pack()
-
+    # Affichage de la fenêtre
     show_home()
 
     # Frame principale de l'accueil
@@ -170,8 +170,9 @@ def gui(root, db_prenoms):
 #                                           HOME
 #
 #===============================================================================================================
-    contributors = ctk.CTkImage(Image.open(resource_path("Icons/contributors.png")), size=(440, 220))
-
+    # Import de l'image contenant les contributeurs
+    contributors = ctk.CTkImage(Image.open(resource_path("Icons/contributors.png")), size=(440, 180))
+    # Texte d'accueil
     label_bonjour = ctk.CTkLabel(
         home_frame,
         text="Bonjour!",
@@ -185,13 +186,14 @@ def gui(root, db_prenoms):
             " Voici les différents onglets disponibles sur la sidebar du Prénomator :\n\n"\
             "•Onglet 'Home': retour à l'accueil.\n"\
             "•Onglet 'Search': recherche de votre nom et de sa popularité.\nN'oubliez pas de sélectionner le bon genre ainsi que de cliquer sur valider OU appuyer sur la touche 'enter'. \n"\
-            "•Onglet 'Statistiques': affichage des chutes et des pics de naissances en France.\n"\
-            "•Onglet 'Évolution': affichage de l'évolution du nom.\n \n"\
-            "Vous pouvez désactiver le 'dark mode' grâce au switch homonyme sur la sidebar.",
+            "•Onglet 'Statistiques': affichage de la courbe représentatrice des naissances en France.\n"\
+            "•Onglet 'Évolution': affichage de l'évolution du nom.\n"\
+            "•Onglet 'Classement':                      .\n\n"\
+            "Vous pouvez désactiver le 'Dark-mode' grâce au switch homonyme sur la sidebar.",
         font=("TimesNewRoman", 25)
     )
     label_expliquation.pack()
-
+    # Affichage de l'image des contributeurs au projets
     contributors_label = ctk.CTkLabel(home_frame, image=contributors, text="")
     contributors_label.pack(pady=20)
 
@@ -207,7 +209,7 @@ def gui(root, db_prenoms):
     label_info = ctk.CTkLabel(frame_info, text="Informations sur le prénom", font=("Arial", 16, "bold"))
     label_info.pack(pady=5)
 
-    stats_label = ctk.CTkLabel(frame_info, text="", anchor="w", justify="left", font=("Arial", 14))
+    stats_label = ctk.CTkLabel(frame_info, text="", anchor="w", justify="left", font=("Arial", 24))
     stats_label.pack(pady=10, fill="both", expand=False)
 
 # Frame droite : Graphiques
@@ -217,10 +219,19 @@ def gui(root, db_prenoms):
     label_graphiques = ctk.CTkLabel(frame_graphiques, text="Graphique du prénom", font=("Arial", 16, "bold"))
     label_graphiques.pack(pady=5)
 
+# Frame du bas avec contrôles
+    bottom_frame = ctk.CTkFrame(search_frame, corner_radius=15)
+    bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
+
+    nom_info = ctk.CTkLabel(bottom_frame, text="Nom sélectionné:", font=("Arial", 14))
+    nom_info.pack(side="left", padx=10, pady=5)
+
+
+
 # Configuration du genre
     sexe_saisi = ctk.IntVar(value=1)
 
-    sexe_frame = ctk.CTkFrame(frame_info)
+    sexe_frame = ctk.CTkFrame(bottom_frame)
     sexe_frame.pack(pady=5)
 
     radio_homme = ctk.CTkRadioButton(sexe_frame, text="Homme", variable=sexe_saisi, value=1)
@@ -228,6 +239,7 @@ def gui(root, db_prenoms):
 
     radio_femme = ctk.CTkRadioButton(sexe_frame, text="Femme", variable=sexe_saisi, value=2)
     radio_femme.pack(side="left", padx=10)
+
 
 # Récupération des prénoms existants
     conn = sqlite3.connect(db_prenoms)
@@ -285,8 +297,10 @@ def gui(root, db_prenoms):
         naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
         update_stats_display()
 
+
 # Retrait d'un prénom
     def retire_prenom():
+        """Retire un prénom de la sélection et met à jour l'affichage"""
         prenom_a_retirer = prenoms_deja_select.get()
         if not prenom_a_retirer or ' ' not in prenom_a_retirer:
             return
@@ -301,9 +315,15 @@ def gui(root, db_prenoms):
             del prenoms_sexe_select[tuple_dico]
 
         prenoms_deja_select.configure(values=[f"{p} {s}" for p, s in prenoms_select])
-        afficher_graphique(prenoms_sexe_select)
+        global naiss_rangs_deja_faits
+        naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
         update_stats_display()
 
+
+    search = ctk.StringVar()
+    entry_custom = ctk.CTkEntry(bottom_frame, placeholder_text="Tape ton prénom ici...", textvariable=search, width=200)
+    entry_custom.pack(side="left", padx=10)
+    entry_custom.bind("<Return>", on_enter)
 # Zone de sélection des prénoms
     zone_select_search = ctk.CTkFrame(frame_graphiques)
     zone_select_search.pack(pady=10)
@@ -377,19 +397,6 @@ def gui(root, db_prenoms):
             lines.append(f"{prenom[0] + prenom[1:].lower()} | {genre_str} | Max: {occur} en {display_annee}")
 
         stats_label.configure(text="\n".join(lines))
-
-# Frame du bas avec contrôles
-    bottom_frame = ctk.CTkFrame(search_frame, corner_radius=15)
-    bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
-
-    nom_info = ctk.CTkLabel(bottom_frame, text="Nom sélectionné:", font=("Arial", 14))
-    nom_info.pack(side="left", padx=10, pady=5)
-
-    search = ctk.StringVar()
-    entry_custom = ctk.CTkEntry(bottom_frame, placeholder_text="Tape ton prénom ici...",
-                               textvariable=search, width=200)
-    entry_custom.pack(side="left", padx=10)
-    entry_custom.bind("<Return>", on_enter)
 
 # Suggestions de prénoms
     suggestion_frame = ctk.CTkScrollableFrame(master=frame_info, fg_color="transparent")
