@@ -261,13 +261,15 @@ def gui(root, db_prenoms):
             if widget not in [label_graphiques, zone_select_search]:
                 widget.destroy()
 
-        result, fig, prenoms_deja_etudies = graphe_prenom(db_prenoms, dico_prenoms_sexe, prenoms_deja_etudies)
+        result, fig, prenoms_deja_etudies = graphe_prenom(db_prenoms, dico_prenoms_sexe, prenoms_deja_etudies) # attention, il y a une bug ici, voici la seule solution que j'ai pu mettre en place, svp trouver meiux
+        # result, fig = graphe_prenom(db_prenoms, dico_prenoms_sexe)
         if result:
             canvas = FigureCanvasTkAgg(fig, master=frame_graphiques)
             canvas.draw()
             canvas.get_tk_widget().pack()
 
         return prenoms_deja_etudies.copy() # évite les effets de bord
+        #suite de correction = return prenoms_deja_etudies   ne pas mettre le .copy()
 
 # Gestion de l'ajout de prénom
     def on_enter(event=None):
