@@ -273,7 +273,7 @@ def gui(root, db_prenoms):
             if widget not in [label_graphiques, zone_select_search]:
                 widget.destroy()
 
-        result, fig = graphe_prenom(db_prenoms, dico_prenoms_sexe) #ÉNORME BUG, SVP BESOIN D'AIDE!!!!!!!!!!!
+        result, fig, prenoms_deja_etudies = graphe_prenom(db_prenoms, dico_prenoms_sexe, prenoms_deja_etudies) #ÉNORME BUG, SVP BESOIN D'AIDE!!!!!!!!!!!
         if result:
             canvas = FigureCanvasTkAgg(fig, master=frame_graphiques)
             canvas.draw()
