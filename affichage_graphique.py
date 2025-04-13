@@ -27,36 +27,49 @@ def gui(root, db_prenoms):
     search_frame = ctk.CTkFrame(main_container, corner_radius=0)
     stat_frame = ctk.CTkFrame(main_container, corner_radius=0)
     evolution_frame = ctk.CTkFrame(main_container, corner_radius=0)
+    classement_frame = ctk.CTkFrame(main_container, corner_radius=0)
 
     def show_home():
         search_frame.pack_forget()
         stat_frame.pack_forget()
         evolution_frame.pack_forget()
+        classement_frame.pack_forget()
         home_frame.pack(fill="both", expand=True)
 
     def show_search():
         home_frame.pack_forget()
         stat_frame.pack_forget()
         evolution_frame.pack_forget()
+        classement_frame.pack_forget()
         search_frame.pack(fill="both", expand=True)
 
     def show_stat():
         home_frame.pack_forget()
         search_frame.pack_forget()
         evolution_frame.pack_forget()
+        classement_frame.pack_forget()
         stat_frame.pack(fill="both", expand=True)
 
     def show_evolution():
         home_frame.pack_forget()
         search_frame.pack_forget()
         stat_frame.pack_forget()
+        classement_frame.pack_forget()
         evolution_frame.pack(fill="both", expand=True)
+
+    def show_classement():
+        home_frame.pack_forget()
+        search_frame.pack_forget()
+        stat_frame.pack_forget()
+        evolution_frame.pack_forget()
+        classement_frame.pack(fill="both", expand=True)
 
 # Sidebar with icons
     home_icon = ctk.CTkImage(Image.open(resource_path("Icons/home.png")), size=(24, 24))
     search_icon = ctk.CTkImage(Image.open(resource_path("Icons/search.png")), size=(24, 24))
     stats_icon = ctk.CTkImage(Image.open(resource_path("Icons/stats.png")), size=(24, 24))
     evolution_icon = ctk.CTkImage(Image.open(resource_path("Icons/evolution.png")), size=(24, 24))
+    classement_icon = ctk.CTkImage(Image.open(resource_path("Icons/classement.png")), size=(24, 24))
 
     sidebar = ctk.CTkFrame(root, width=80, fg_color="#1e1e1e", corner_radius=2)
     sidebar.pack(side="left", fill="y", padx=0, pady=0)
@@ -115,6 +128,19 @@ def gui(root, db_prenoms):
         hover_color="#ffffff"
     )
     evolution_button.pack(pady=10)
+
+    classement_button = ctk.CTkButton(
+        sidebar,
+        text="",
+        image=classement_icon,
+        width=50,
+        height=50,
+        corner_radius=10,
+        command=show_classement,
+        fg_color="#dddddd",
+        hover_color="#ffffff"
+    )
+    classement_button.pack(pady=10)
 
     switch_frame =ctk.CTkFrame(sidebar, fg_color="transparent")
     switch_frame.pack(side="right", padx=10)
@@ -230,7 +256,7 @@ def gui(root, db_prenoms):
 
 # Fonction d'affichage du graphique
     def afficher_graphique(dico_prenoms_sexe, prenoms_deja_etudies):
-        
+
         for widget in frame_graphiques.winfo_children():
             if widget not in [label_graphiques, zone_select_search]:
                 widget.destroy()
@@ -246,7 +272,7 @@ def gui(root, db_prenoms):
 # Gestion de l'ajout de prénom
     def on_enter(event=None):
         # on peut pas return quand c'est des évèmenent comme ça, donc pas d'autre moyen pour mettre à jour ces valurs
-        global naiss_rangs_deja_faits 
+        global naiss_rangs_deja_faits
         prenom = search.get()
         sexe = sexe_saisi.get()
         sexe_str = "masculin" if sexe == 1 else "féminin"
@@ -525,8 +551,8 @@ def gui(root, db_prenoms):
 
         # Naissances
         cursor.execute("""
-            SELECT annais, SUM(nombre) 
-            FROM prenoms 
+            SELECT annais, SUM(nombre)
+            FROM prenoms
             WHERE preusuel = ? AND sexe = ? AND annais != 'XXXX'
             GROUP BY annais;
         """, (prenom, sexe))
@@ -535,8 +561,8 @@ def gui(root, db_prenoms):
 
         # Décès
         cursor.execute("""
-            SELECT SUBSTR(CAST(date_deces AS TEXT), 1, 4) AS annee, COUNT(*) 
-            FROM deces 
+            SELECT SUBSTR(CAST(date_deces AS TEXT), 1, 4) AS annee, COUNT(*)
+            FROM deces
             WHERE UPPER(prenom) LIKE ? AND sexe = ?
             AND LENGTH(date_deces) = 8
             AND CAST(SUBSTR(CAST(date_deces AS TEXT), 1, 4) AS INTEGER) BETWEEN 1900 AND 2025
@@ -585,7 +611,7 @@ def gui(root, db_prenoms):
             couleur = 'lime' if y[1] >= 0 else 'red'
             ax.plot(x, y, color=couleur)
 
-        ax.set_title(f"Dérivée (%) de (Naissances - Décès) - {prenom}", color='white')
+        ax.set_title(f"Dérivée (%) de (Naissances - Décès) ==> {prenom}", color='white')
         ax.set_xlabel("Année", color='white')
         ax.set_ylabel("Variation en %", color='white')
         ax.tick_params(colors='white')
