@@ -170,7 +170,7 @@ def gui(root, db_prenoms):
 #                                           HOME
 #
 #===============================================================================================================
-    contributors = ctk.CTkImage(Image.open(resource_path("Icons/contributors.png")), size=(240, 190))
+    contributors = ctk.CTkImage(Image.open(resource_path("Icons/contributors.png")), size=(440, 220))
 
     label_bonjour = ctk.CTkLabel(
         home_frame,
@@ -261,15 +261,13 @@ def gui(root, db_prenoms):
             if widget not in [label_graphiques, zone_select_search]:
                 widget.destroy()
 
-        result, fig, prenoms_deja_etudies = graphe_prenom(db_prenoms, dico_prenoms_sexe, prenoms_deja_etudies) # attention, il y a une bug ici, voici la seule solution que j'ai pu mettre en place, svp trouver meiux
-        # result, fig = graphe_prenom(db_prenoms, dico_prenoms_sexe)
+        result, fig = graphe_prenom(db_prenoms, dico_prenoms_sexe) #ÉNORME BUG, SVP BESOIN D'AIDE!!!!!!!!!!!
         if result:
             canvas = FigureCanvasTkAgg(fig, master=frame_graphiques)
             canvas.draw()
             canvas.get_tk_widget().pack()
 
-        return prenoms_deja_etudies.copy() # évite les effets de bord
-        #suite de correction = return prenoms_deja_etudies   ne pas mettre le .copy()
+        return prenoms_deja_etudies # évite les effets de bord
 
 # Gestion de l'ajout de prénom
     def on_enter(event=None):
@@ -622,3 +620,8 @@ def gui(root, db_prenoms):
         canvas = FigureCanvasTkAgg(fig, master=evolution_graph_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(expand=True, fill="both", padx=10, pady=10)
+
+#===============================================================================================================
+#                                           CLASSEMENT
+#
+#===============================================================================================================
