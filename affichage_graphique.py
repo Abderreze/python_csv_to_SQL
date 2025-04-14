@@ -667,3 +667,38 @@ def gui(root, db_prenoms):
 #                                           CLASSEMENT
 #
 #===============================================================================================================
+    # création des cadres pour les tableaux
+    frame_tableau_garcon = ctk.CTkFrame(master=classement_frame)
+    frame_tableau_fille = ctk.CTkFrame(master=classement_frame)
+    frame_tableau_fille.pack(side='left', padx=10, expand=True, fill='both')
+    frame_tableau_garcon.pack(side='right', padx=10, expand=True, fill='both')
+    # boutons pour intéragir
+    annees_possibles = [str(i) for i in range(1900, 2023)]
+    selection_annee = ctk.CTkComboBox(master=classement_frame, values=annees_possibles)
+    selection_annee.pack(pady=20)
+        
+    selection_annee.bind('<<ComboboxSelected>>', lambda e: affiche_tableau_classement())
+    classement_button = ctk.CTkButton(classement_frame, text="Afficher", command=lambda: affiche_tableau_classement())
+    classement_button.pack(pady=20)
+
+
+    def affiche_tableau_classement(event=None):
+        '''
+        Permet d'afficher dans un tableau les 10 prénoms les plus donnés selon l'année choisie
+        '''
+        annee_selectionnee = selection_annee.get()
+        les_tops = classements(annee_selectionnee, db_prenoms)
+        print(les_tops)
+        liste_garcon = les_tops['masculin']
+        liste_fille = les_tops['feminin']
+        for i, ligne in enumerate(liste_fille):
+            for j, case in enumerate(ligne):
+                label = ctk.CTkLabel(frame_tableau_fille, text=case, width=100, anchor='center')
+                label.grid(row=i, column=j, padx=5, pady=5)
+        for i, ligne in enumerate(liste_garcon):
+            for j, case in enumerate(ligne):
+                label = ctk.CTkLabel(frame_tableau_garcon, text=case, width=100, anchor='center')
+                label.grid(row=i, column=j, padx=5, pady=5)
+
+
+ 
