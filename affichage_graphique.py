@@ -12,12 +12,11 @@ from collections import defaultdict
 from Utils.path import resource_path
 
 naiss_rangs_deja_faits = {} # permettra d'éviter de recalculer pour des prénoms déjà sélectionnés
+
 def gui(root, db_prenoms):
     matplotlib.use('Agg')
-
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("dark-blue")
-
     root.title("Prénomator 3000 EXTRA MAX V2.0")
 
     # Création de la fenêtre définie par défaut en fullscreen
@@ -29,6 +28,7 @@ def gui(root, db_prenoms):
     stat_frame = ctk.CTkFrame(main_container, corner_radius=0)
     evolution_frame = ctk.CTkFrame(main_container, corner_radius=0)
     classement_frame = ctk.CTkFrame(main_container, corner_radius=0)
+
     # Fonctions permettant de changer de frame grâce aux icons de la Sidebar
     def show_home():
         search_frame.pack_forget()
@@ -36,28 +36,24 @@ def gui(root, db_prenoms):
         evolution_frame.pack_forget()
         classement_frame.pack_forget()
         home_frame.pack(fill="both", expand=True)
-
     def show_search():
         home_frame.pack_forget()
         stat_frame.pack_forget()
         evolution_frame.pack_forget()
         classement_frame.pack_forget()
         search_frame.pack(fill="both", expand=True)
-
     def show_stat():
         home_frame.pack_forget()
         search_frame.pack_forget()
         evolution_frame.pack_forget()
         classement_frame.pack_forget()
         stat_frame.pack(fill="both", expand=True)
-
     def show_evolution():
         home_frame.pack_forget()
         search_frame.pack_forget()
         stat_frame.pack_forget()
         classement_frame.pack_forget()
         evolution_frame.pack(fill="both", expand=True)
-
     def show_classement():
         home_frame.pack_forget()
         search_frame.pack_forget()
@@ -75,8 +71,8 @@ def gui(root, db_prenoms):
     sidebar = ctk.CTkFrame(root, width=80, fg_color="#1e1e1e", corner_radius=2)
     sidebar.pack(side="left", fill="y", padx=0, pady=0)
     sidebar.pack_propagate(False) #la taille de sidebar n'est pas définis par ces enfants (dans se cas les icons)
-
     ctk.CTkLabel(sidebar, text="", height=20).pack()
+
     # Création des bouttons de la sidebars puis on affiche ces mêmes bouttons
     home_button = ctk.CTkButton(
         sidebar,
@@ -142,9 +138,11 @@ def gui(root, db_prenoms):
         hover_color="#ffffff"
     )
     classement_button.pack(pady=10)
+
     # Création de la "mini-frame" contenant le switch du dark-mode AINSI QUE le texte l'accompagnant car sinon la texte est "coupé" par la sidebar
     switch_frame =ctk.CTkFrame(sidebar, fg_color="transparent")
     switch_frame.pack(side="right", padx=10)
+
     # Création du switch
     dark_mode_switch = ctk.CTkSwitch(switch_frame, text="", command=lambda: ctk.set_appearance_mode("dark" if dark_mode_switch.get() else "light"))
     dark_mode_switch.pack(pady=(0, 5))
@@ -159,6 +157,7 @@ def gui(root, db_prenoms):
         justify="center"
     )
     switch_label.pack()
+
     # Affichage de la fenêtre
     show_home()
 
@@ -172,6 +171,7 @@ def gui(root, db_prenoms):
 #===============================================================================================================
     # Import de l'image contenant les contributeurs
     contributors = ctk.CTkImage(Image.open(resource_path("Icons/contributors.png")), size=(440, 180))
+
     # Texte d'accueil
     label_bonjour = ctk.CTkLabel(
         home_frame,
@@ -193,6 +193,7 @@ def gui(root, db_prenoms):
         font=("TimesNewRoman", 25)
     )
     label_expliquation.pack()
+
     # Affichage de l'image des contributeurs au projets
     contributors_label = ctk.CTkLabel(home_frame, image=contributors, text="")
     contributors_label.pack(pady=20)
@@ -205,41 +206,31 @@ def gui(root, db_prenoms):
 # Frame gauche : Infos
     frame_info = ctk.CTkFrame(main_frame, corner_radius=15)
     frame_info.pack(side="left", padx=10, pady=10, fill="both", expand=True, anchor="w")
-
     label_info = ctk.CTkLabel(frame_info, text="Informations sur le prénom", font=("Arial", 16, "bold"))
     label_info.pack(pady=5)
-
     stats_label = ctk.CTkLabel(frame_info, text="", anchor="w", justify="left", font=("Arial", 24))
     stats_label.pack(pady=10, fill="both", expand=False)
 
 # Frame droite : Graphiques
     frame_graphiques = ctk.CTkFrame(main_frame, corner_radius=15)
     frame_graphiques.pack(side="left", padx=10, pady=10, fill="both", expand=True)
-
     label_graphiques = ctk.CTkLabel(frame_graphiques, text="Graphique du prénom", font=("Arial", 16, "bold"))
     label_graphiques.pack(pady=5)
 
 # Frame du bas avec contrôles
     bottom_frame = ctk.CTkFrame(search_frame, corner_radius=15)
     bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
-
     nom_info = ctk.CTkLabel(bottom_frame, text="Nom sélectionné:", font=("Arial", 14))
     nom_info.pack(side="left", padx=10, pady=5)
 
-
-
 # Configuration du genre
     sexe_saisi = ctk.IntVar(value=1)
-
     sexe_frame = ctk.CTkFrame(bottom_frame)
     sexe_frame.pack(pady=5)
-
     radio_homme = ctk.CTkRadioButton(sexe_frame, text="Homme", variable=sexe_saisi, value=1)
     radio_homme.pack(side="left", padx=10)
-
     radio_femme = ctk.CTkRadioButton(sexe_frame, text="Femme", variable=sexe_saisi, value=2)
     radio_femme.pack(side="left", padx=10)
-
 
 # Récupération des prénoms existants
     conn = sqlite3.connect(db_prenoms)
@@ -255,20 +246,30 @@ def gui(root, db_prenoms):
     with open(resource_path('suggestions.csv'), mode='r', encoding='utf-8', newline='') as f:
         reader = csv.reader(f, delimiter=';')
         next(reader)
-
         for prefixe, prenom in reader:
             tmp[prefixe].append(prenom)
     prefixes_prenoms = dict(tmp)
     for liste in prefixes_prenoms.values():
         liste.sort()
     del tmp
+
 # Données des prénoms sélectionnés
     prenoms_sexe_select = {}
     prenoms_select = []
 
-# Fonction d'affichage du graphique
+    # Fonction d'affichage du graphique principal
     def afficher_graphique(dico_prenoms_sexe, prenoms_deja_etudies):
-        # éviter des problèmes en génerant des graphiques sans prénoms
+        """
+        Affiche le graphique des prénoms sélectionnés à partir de la base de données.
+
+        Args:
+            dico_prenoms_sexe (dict): Dictionnaire des prénoms avec leur sexe associé comme clé, et leur couleur comme valeur.
+            prenoms_deja_etudies (dict): Dictionnaire des prénoms déjà traités pour éviter les recalculs.
+
+        Returns:
+            dict: Dictionnaire mis à jour avec les données traitées (naissances, rangs).
+        """
+        # On efface les widgets précédents du cadre sauf ceux qui doivent rester
         for widget in frame_graphiques.winfo_children():
             if widget not in [label_graphiques, zone_select_search]:
                 widget.destroy()
@@ -277,32 +278,48 @@ def gui(root, db_prenoms):
             return
         result, fig, prenoms_deja_etudies = graphe_prenom(db_prenoms, dico_prenoms_sexe, prenoms_deja_etudies) #ÉNORME BUG, SVP BESOIN D'AIDE!!!!!!!!!!!
         if result:
+            # Intégration du graphique dans l'interface Tkinter
             canvas = FigureCanvasTkAgg(fig, master=frame_graphiques)
             canvas.draw()
             canvas.get_tk_widget().pack()
 
-        return prenoms_deja_etudies # évite les effets de bord
+        return prenoms_deja_etudies  # On retourne la structure mise à jour pour éviter les effets de bord
 
-# Gestion de l'ajout de prénom
+
+    # Fonction déclenchée lors de la validation d’un prénom
     def on_enter(event=None):
-        # on peut pas return quand c'est des évèmenent comme ça, donc pas d'autre moyen pour mettre à jour ces valurs
-        global naiss_rangs_deja_faits
+        """
+        Gère l’ajout d’un prénom à la sélection lorsque l’utilisateur appuie sur Entrée.
+        Met à jour la liste des prénoms affichés et rafraîchit les graphiques et statistiques.
+        """
+        global naiss_rangs_deja_faits  # Pour conserver les résultats calculés précédemment
+
+        # Récupération du prénom et du sexe sélectionnés
         prenom = search.get()
         sexe = sexe_saisi.get()
         sexe_str = "masculin" if sexe == 1 else "féminin"
 
+        # Vérifie que le prénom est valide et n'a pas déjà été ajouté
         if (prenom, sexe_str) not in prenoms_select and (prenom.upper(), sexe) in prenoms_sexe_existants:
+            # Ajoute au dictionnaire des prénoms avec une couleur aléatoire
             prenoms_sexe_select[(prenom, sexe)] = f"#{randint(0x333333, 0xFFFFFF):06x}"
             prenoms_select.append((prenom, sexe_str))
 
+        # Met à jour la liste déroulante des prénoms
         prenoms_deja_select.configure(values=[f"{p} {s}" for p, s in prenoms_select])
+
+        # Met à jour le graphique avec le nouveau prénom
         naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
+
+        # Met à jour les statistiques affichées
         update_stats_display()
 
 
-# Retrait d'un prénom
+    # Fonction de retrait d’un prénom sélectionné
     def retire_prenom():
-        """Retire un prénom de la sélection et met à jour l'affichage"""
+        """
+        Retire un prénom de la sélection et met à jour le graphique et les statistiques affichées.
+        """
         prenom_a_retirer = prenoms_deja_select.get()
         if not prenom_a_retirer:
             return
@@ -311,22 +328,29 @@ def gui(root, db_prenoms):
         genre_code = 1 if genre == 'masculin' else 2
         tuple_dico = (prenom, genre_code)
 
+        # Supprime le prénom de la liste de sélection
         if (prenom, genre) in prenoms_select:
             prenoms_select.remove((prenom, genre))
         if tuple_dico in prenoms_sexe_select:
             del prenoms_sexe_select[tuple_dico]
 
+        # Met à jour la liste déroulante
         prenoms_deja_select.configure(values=[f"{p} {s}" for p, s in prenoms_select])
+
+        # Rafraîchit le graphique et les stats
         global naiss_rangs_deja_faits
         naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
         update_stats_display()
 
 
+    # Zone de saisie du prénom
     search = ctk.StringVar()
     entry_custom = ctk.CTkEntry(bottom_frame, placeholder_text="Tape ton prénom ici...", textvariable=search, width=200)
     entry_custom.pack(side="left", padx=10)
     entry_custom.bind("<Return>", on_enter)
-# Zone de sélection des prénoms
+
+
+    # Zone de sélection des prénoms avec bouton de suppression
     zone_select_search = ctk.CTkFrame(frame_graphiques)
     zone_select_search.pack(pady=10)
 
@@ -344,15 +368,26 @@ def gui(root, db_prenoms):
     )
     remove_button.pack(side="left", padx=5)
 
-# Affichage du graphique
+
+    # Label d’affichage d’image (optionnel ou message)
     image_label = ctk.CTkLabel(frame_graphiques, text="")
     image_label.pack(pady=10)
 
-# Récupération des statistiques
+
+    # Fonction récupérant l’occurrence maximale d’un prénom et l’année associée
     def get_max_occurrence(prenom, genre_code):
+        """
+        Récupère le nombre maximal de naissances pour un prénom donné et l’année correspondante.
+
+        Args:
+            prenom (str): Le prénom recherché.
+            genre_code (int): Code du sexe (1 pour masculin, 2 pour féminin).
+
+        Returns:
+            tuple: (nombre, année) ou (0, "N/A") si aucun résultat.
+        """
         conn = sqlite3.connect(db_prenoms)
         cursor = conn.cursor()
-
         try:
             cursor.execute("""
                 SELECT annais, nombre
@@ -368,6 +403,7 @@ def gui(root, db_prenoms):
 
             annee, nombre = result[0], result[1]
 
+            # Vérifie si l'année est invalide malgré tout
             if str(annee).strip().upper() == "XXXX":
                 cursor.execute("""
                     SELECT annais, nombre
@@ -389,6 +425,7 @@ def gui(root, db_prenoms):
         finally:
             conn.close()
 
+
 # Mise à jour de l'affichage des stats
     def update_stats_display():
         lines = []
@@ -397,13 +434,11 @@ def gui(root, db_prenoms):
             occur, annee = get_max_occurrence(prenom, genre_code)
             display_annee = "Année inconnue" if annee == "XXXX" else annee
             lines.append(f"{prenom[0] + prenom[1:].lower()} | {genre_str} | Max: {occur} en {display_annee}")
-
         stats_label.configure(text="\n".join(lines))
 
 # Suggestions de prénoms
     suggestion_frame = ctk.CTkScrollableFrame(master=frame_info, fg_color="transparent")
     suggestion_frame.pack()
-
     def update_suggestion(event=None):
         typed = search.get()
         for widget in suggestion_frame.winfo_children():
@@ -411,9 +446,7 @@ def gui(root, db_prenoms):
         if len(typed) <= 3:
             return
         suggestion_frame._scrollbar.set(0, 0)
-
         filtrage = [prenom for prenom in prefixes_prenoms.get(typed.upper(), prefixes_prenoms.get(typed[:4].upper(), [])) if prenom.upper().startswith(typed.upper())]
-
         for suggestion in filtrage:
             btn = ctk.CTkButton(
                 master=suggestion_frame,
@@ -430,10 +463,8 @@ def gui(root, db_prenoms):
         update_suggestion()
 
     entry_custom.bind("<KeyRelease>", update_suggestion)
-
     add_button = ctk.CTkButton(bottom_frame, text="Ajouter", command=on_enter)
     add_button.pack(side="left", padx=10)
-
 
 #===============================================================================================================
 #                                           STATISTIQUES
@@ -459,20 +490,16 @@ def gui(root, db_prenoms):
             annees.append(int(row[0]))
             naissances.append(row[1])
         conn.close()
-
         fig = Figure(figsize=(8, 5), dpi=100)
         fig.patch.set_facecolor('#000000')  # Fond de la figure
-
         plot = fig.add_subplot(111)
         plot.set_facecolor('#000000')  # Fond de la zone de tracé
-
         plot.plot(annees, naissances, color='#ff0000')
         plot.set_title("Naissances par année", color='white')  # Titre en blanc
         plot.set_xlabel("Année", color='white')  # Label X
         plot.set_ylabel("Nombre de naissances", color='white')  # Label Y
         plot.tick_params(colors='white')  # Couleur des ticks
         plot.grid(True, linestyle='--', alpha=0.3, color='white')  # Grille blanche légère
-
         canvas = FigureCanvasTkAgg(fig, master=stats_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(expand=True, fill="both", padx=10, pady=10)
@@ -481,12 +508,11 @@ def gui(root, db_prenoms):
         error_label = ctk.CTkLabel(stats_frame, text=f"Erreur de chargement des données: {str(e)}", text_color="red")
         error_label.pack(pady=50)
 
-
-
 #===============================================================================================================
 #                                           ÉVOLUTIONS
 #
 #===============================================================================================================
+
     # Zone Titre
     evolution_label = ctk.CTkLabel(evolution_frame, text="Évolution : Différence Décès - Naissances", font=("Arial", 20))
     evolution_label.pack(pady=20)
@@ -494,7 +520,6 @@ def gui(root, db_prenoms):
     # Zone du haut pour les contrôles
     evolution_controls = ctk.CTkFrame(evolution_frame, corner_radius=15)
     evolution_controls.pack(pady=10)
-
     evolution_prenom_var = ctk.StringVar()
     evolution_entry = ctk.CTkEntry(evolution_controls, textvariable=evolution_prenom_var, placeholder_text="Tape ton prénom ici...", width=200)
     evolution_entry.pack(side="left", padx=10)
@@ -515,7 +540,6 @@ def gui(root, db_prenoms):
         cursor.execute("SELECT DISTINCT preusuel FROM prenoms WHERE UPPER(preusuel) LIKE ? ORDER BY preusuel ASC LIMIT 10", (typed + '%',))
         results = cursor.fetchall()
         conn.close()
-
         if results:
             for item in results:
                 suggestion = item[0]
@@ -528,7 +552,6 @@ def gui(root, db_prenoms):
     def select_from_autocomplete(value):
         evolution_prenom_var.set(value)
         autocomplete_frame.pack_forget()
-
     evolution_entry.bind("<KeyRelease>", update_autocomplete)
 
     evolution_sexe_var = ctk.IntVar(value=1)
@@ -536,25 +559,35 @@ def gui(root, db_prenoms):
     evolution_radio_h.pack(side="left", padx=5)
     evolution_radio_f = ctk.CTkRadioButton(evolution_controls, text="Femme", variable=evolution_sexe_var, value=2)
     evolution_radio_f.pack(side="left", padx=5)
-
     evolution_button = ctk.CTkButton(evolution_controls, text="Afficher", command=lambda: afficher_graphe_evolution(db_prenoms))
     evolution_button.pack(side="left", padx=10)
-
     evolution_graph_frame = ctk.CTkFrame(evolution_frame, corner_radius=15)
     evolution_graph_frame.pack(expand=True, fill="both", padx=20, pady=10)
 
     def afficher_graphe_evolution(db_path):
+        """
+        Affiche un graphique représentant l'évolution de la différence entre
+        le nombre de naissances et de décès d'un prénom donné, ainsi que sa dérivée.
+
+        Paramètre :
+            db_path (str) : Le chemin vers la base de données SQLite contenant
+                            les informations de naissances et de décès.
+        """
+        # Nettoyage de la zone graphique précédente (si un graphe est déjà affiché)
         for widget in evolution_graph_frame.winfo_children():
             widget.destroy()
-
+        # Récupération du prénom saisi et du sexe sélectionné
         prenom = evolution_prenom_var.get().strip().upper()
         sexe = evolution_sexe_var.get()
-
+        # Si aucun prénom n'est saisi, on quitte la fonction
         if not prenom:
             return
+        # Masquer et nettoyer la zone d'autocomplétion
         autocomplete_frame.pack_forget()
-            #for widget in autocomplete_frame.winfo_children():
-            #widget.destroy()
+        for widget in autocomplete_frame.winfo_children():
+            widget.destroy()
+
+        # Connexion à la base de données
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
