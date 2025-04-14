@@ -8,6 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from random import randint
 from PIL import Image, ImageTk
 from Graphes.graphe_de_ton_prenom import graphe_prenom
+from Graphes.classements import classements
 from collections import defaultdict
 from Utils.path import resource_path
 
@@ -670,8 +671,8 @@ def gui(root, db_prenoms):
     # création des cadres pour les tableaux
     frame_tableau_garcon = ctk.CTkFrame(master=classement_frame)
     frame_tableau_fille = ctk.CTkFrame(master=classement_frame)
-    frame_tableau_fille.pack(side='left', padx=10, expand=True, fill='both')
-    frame_tableau_garcon.pack(side='right', padx=10, expand=True, fill='both')
+    frame_tableau_fille.pack(side='left', padx=10, pady=20, expand=True, fill='both')
+    frame_tableau_garcon.pack(side='right', padx=10, pady=20, expand=True, fill='both')
     # boutons pour intéragir
     annees_possibles = [str(i) for i in range(1900, 2023)]
     selection_annee = ctk.CTkComboBox(master=classement_frame, values=annees_possibles)

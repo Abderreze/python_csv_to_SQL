@@ -1,36 +1,22 @@
 import sqlite3
 import matplotlib.pyplot as plt
 
-def classements(prenom, sexe):
-    conn = sqlite3.connect("prenoms.db")
+def classements(annee: str, db_prenoms: str):
+    conn = sqlite3.connect(db_prenoms)
     cursor = conn.cursor()
-    cursor.execute("""SELECT DISTINCT annais FROM prenoms;""")
-    result = cursor.fetchall()
 
-    annees = sorted([int(uplet[0]) for uplet in result if uplet[0] != 'XXXX'])
-    rangs_par_annees = {}
-    for annee in annees:
+    tops_10 = {}
+
+    for i in range(1, 3):
         cursor.execute("""
-            SELECT rang 
-            FROM (
-                SELECT *,
-                RANK() OVER (ORDER BY nombre DESC) as rang
-                FROM prenoms
-                WHERE annais = ? AND preusuel != '_PRENOMS_RARES' AND sexe = ?
-            )
-            WHERE preusuel = ?
-        """, (annee, sexe, prenom.upper()))
-        result = cursor.fetchall()
-        if result:
-            rangs_par_annees[annee] = result[0][0]
-    
+            SELECT preusuel, nombre 
+            FROM prenoms
+            WHERE annais = ? AND sexe = ? AND preusuel != '_PRENOMS_RARES'
+            ORDER BY nombre DESC
+            LIMIT 10;
+        """, (annee, i, ))
+        top_pour_un_sexe = [(prenom, nombre) for prenom, nombre in cursor.fetchall()]
+        categorie = "masculin" if i == 1 else "feminin"
+        tops_10[categorie] = top_pour_un_sexe
     conn.close()
-    return rangs_par_annees
-dico = classements('helenne', 2)
-
-x_axis = list(dico.keys())
-y_axis = list(dico.values())
-
-plt.plot(x_axis, y_axis, marker=None, linestyle='-', color='blue')
-plt.gca().invert_yaxis()
-plt.show()
+    return tops_10
