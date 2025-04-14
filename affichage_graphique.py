@@ -243,7 +243,7 @@ def gui(root, db_prenoms):
     prenoms_sexe_existants = [uplet for uplet in result]
     conn.close()
     tmp = defaultdict(list)
-    with open(resource_path('suggestions.csv'), mode='r', encoding='utf-8', newline='') as f:
+    with open('suggestions.csv', mode='r', encoding='utf-8', newline='') as f:
         reader = csv.reader(f, delimiter=';')
         next(reader)
         for prefixe, prenom in reader:
