@@ -295,7 +295,7 @@ def gui(root, db_prenoms):
         global naiss_rangs_deja_faits  # Pour conserver les résultats calculés précédemment
 
         # Récupération du prénom et du sexe sélectionnés
-        prenom = search.get()
+        prenom = search.get().upper()
         sexe = sexe_saisi.get()
         sexe_str = "masculin" if sexe == 1 else "féminin"
 
@@ -440,7 +440,7 @@ def gui(root, db_prenoms):
     suggestion_frame = ctk.CTkScrollableFrame(master=frame_info, fg_color="transparent")
     suggestion_frame.pack()
     def update_suggestion(event=None):
-        typed = search.get()
+        typed = search.get().upper()
         for widget in suggestion_frame.winfo_children():
             widget.destroy()
         if len(typed) <= 3:
