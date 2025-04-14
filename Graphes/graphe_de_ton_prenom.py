@@ -8,6 +8,8 @@ from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter
 plt.style.use('dark_background')
 def graphe_prenom(db_prenoms: str, prenoms_sexes: dict, naiss_rangs_connus: dict):
+    if naiss_rangs_connus is None:
+        naiss_rangs_connus = dict()
 
     liaison = sqlite3.connect(db_prenoms)
     curseur = liaison.cursor()
