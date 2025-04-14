@@ -8,7 +8,6 @@ import threading
 from Utils.config import set_setting
 from Utils.import_births import import_births_to_sql
 from Utils.import_deaths import import_deaths_to_sql
-from Utils.import_suggestions import import_suggestions_file
 from Utils.import_trivia import import_trivia_to_sql
 from Utils.path import resource_path
 from affichage_graphique import gui
@@ -57,12 +56,10 @@ def download_and_process_data(stop_event):
         deaths_urls_str = config.get("remote", "deaths_urls")
         deaths_urls = [url.strip() for url in deaths_urls_str.split(',')]
         first_deaths_year = config.get("remote", "first_deaths_year")
-        suggestions_url = config.get("remote", "suggestions_url")
         db_dir = os.path.dirname(db_path)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
         os.makedirs(data_dir, exist_ok=True)
-        import_suggestions_file(suggestions_url)
         import_births_to_sql(db_path, data_dir, births_url)
         import_deaths_to_sql(db_path, data_dir, deaths_urls, first_deaths_year)
         import_trivia_to_sql(db_path, data_dir, trivia_url) 
