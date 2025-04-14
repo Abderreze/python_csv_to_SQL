@@ -31,7 +31,7 @@ jobs:
 
       - name: Build with Pyinstaller
         run: |
-          pyinstaller --noconfirm --onedir --windowed --add-data "config.ini;." --add-data "Icons;Icons" --add-data "Graphes;Graphes" --add-data "Utils;Utils" --add-data "${{ steps.ctk.outputs.path }};customtkinter" prenoms.py
+          pyinstaller --noconfirm --onedir --windowed --add-data "config.ini;." --add-data "Icons;Icons" --add-data "${{ steps.ctk.outputs.path }};customtkinter" prenoms.py
 
       - name: Zip contents of dist
         run: powershell -Command "Compress-Archive -Path dist\\* -DestinationPath w64-prenoms.zip"
