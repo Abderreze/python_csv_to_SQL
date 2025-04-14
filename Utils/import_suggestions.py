@@ -6,7 +6,7 @@ def import_suggestions_file(file_url):
         try:
             response = requests.get(file_url)
             response.raise_for_status()
-            with open("suggestions.csv", "wb", encoding='utf-8') as f:
+            with open("suggestions.csv", "wb") as f:
                 f.write(response.content)
 
         except requests.exceptions.RequestException as e:
