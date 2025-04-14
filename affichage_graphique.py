@@ -268,11 +268,13 @@ def gui(root, db_prenoms):
 
 # Fonction d'affichage du graphique
     def afficher_graphique(dico_prenoms_sexe, prenoms_deja_etudies):
-
+        # éviter des problèmes en génerant des graphiques sans prénoms
         for widget in frame_graphiques.winfo_children():
             if widget not in [label_graphiques, zone_select_search]:
                 widget.destroy()
 
+        if not dico_prenoms_sexe:
+            return
         result, fig, prenoms_deja_etudies = graphe_prenom(db_prenoms, dico_prenoms_sexe, prenoms_deja_etudies) #ÉNORME BUG, SVP BESOIN D'AIDE!!!!!!!!!!!
         if result:
             canvas = FigureCanvasTkAgg(fig, master=frame_graphiques)
@@ -302,7 +304,7 @@ def gui(root, db_prenoms):
     def retire_prenom():
         """Retire un prénom de la sélection et met à jour l'affichage"""
         prenom_a_retirer = prenoms_deja_select.get()
-        if not prenom_a_retirer or ' ' not in prenom_a_retirer:
+        if not prenom_a_retirer:
             return
 
         prenom, genre = prenom_a_retirer.split(' ')
