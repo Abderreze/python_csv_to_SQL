@@ -109,10 +109,12 @@ def ask_for_new_path(parent, db_path):
         set_setting(resource_path("config.ini"), "paths", "database_path", new_path)
         config.read(resource_path("config.ini")) # mettre à jour
         path_window.destroy()
-        if initialise_db(parent):
-            success_window = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
-        else:
+        if not initialise_db(parent):
             erreur_window = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
+            def destroy():
+                erreur_window.destroy()
+                parent.destroy()
+            erreur_window.after(5000, destroy)
 
         
     generate_button = ctk.CTkButton(path_window, text="Générer la base de données ici", command=generate_at_path)
@@ -148,10 +150,20 @@ def check_gen_db(parent, database_path):
             if choice == "Spécifier un chemin existant":
                 ask_for_existing_path(parent)
             elif choice == "Générer au chemin par défaut":
-                if initialise_db(parent):
-                    hSuccess = display_notification(parent, "Succès", "La base de données a été téléchargée et créée avec succès!")
-                else:
+                if not initialise_db(parent):
                     hError = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
+                    os.remove(database_path)
+                    try:
+                        import shutil
+                        data_dir = config.get('paths', 'data_directory')
+                        shutil.rmtree(data_dir)
+                    except Exception as e:
+                        print(e)
+                    finally:
+                        def destroy():
+                            hError.destroy()
+                            parent.destroy()
+                        hError.after(5000, destroy)
 
             elif choice == "Spécifier un nouveau chemin pour la générer":
                 db_path = config.get("paths", "database_path")
