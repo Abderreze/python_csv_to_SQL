@@ -3,7 +3,6 @@ import sqlite3
 import sys
 import requests
 import os
-from Utils.path import resource_path
 from Utils.unzip import unzip_file
 
 def create_births_table(db_path):

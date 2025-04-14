@@ -4,7 +4,6 @@ import sys
 import requests
 import os
 
-from Utils.path import resource_path
 
 def create_trivia_table(db_path):
     connection = sqlite3.connect(db_path)

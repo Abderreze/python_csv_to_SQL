@@ -8,6 +8,7 @@ from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter
 plt.style.use('dark_background')
 def graphe_prenom(db_prenoms: str, prenoms_sexes: dict, naiss_rangs_connus: dict):
+
     if naiss_rangs_connus is None:
         naiss_rangs_connus = dict()
 
@@ -92,5 +93,3 @@ def graphe_prenom(db_prenoms: str, prenoms_sexes: dict, naiss_rangs_connus: dict
             existe = (False and existe)
 
     return existe, fig, naiss_rangs_deja_calcules
-if __name__ == '__main__':
-    graphe_prenom("gabriel", 1)
