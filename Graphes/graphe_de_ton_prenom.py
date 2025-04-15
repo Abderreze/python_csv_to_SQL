@@ -59,7 +59,7 @@ def graphe_prenom(db_prenoms: str, prenoms_sexes: dict, naiss_rangs_connus: dict
             y_max = y[indice_max]
             plot_naissances.text(x_max, min(y), f"{int(x_max)}", color='red', fontsize=12, verticalalignment='bottom', horizontalalignment='right')
             plot_naissances.text(x[0], y_max, f"{y_max}", color='red', fontsize=12, verticalalignment='bottom', horizontalalignment='right')
-            genre_str = 'H' if sexe == 1 else 'F'
+            genre_str = '(H)' if sexe == 1 else '(F)'
             plot_naissances.plot(x, y, marker=None, linestyle='-', color=couleur, label=f"{prenom} {genre_str}")
             plot_naissances.scatter(x_max, max(y), marker='x', color='r', label=f"Max en x={x_max}", zorder=3)
             plot_naissances.set_xlabel("Années")
