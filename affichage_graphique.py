@@ -68,6 +68,7 @@ def gui(root, db_prenoms):
     stats_icon = ctk.CTkImage(Image.open(resource_path("Icons/stats.png")), size=(24, 24))
     evolution_icon = ctk.CTkImage(Image.open(resource_path("Icons/evolution.png")), size=(24, 24))
     classement_icon = ctk.CTkImage(Image.open(resource_path("Icons/classement.png")), size=(24, 24))
+
     # Création de la frame servant de sidebar
     sidebar = ctk.CTkFrame(root, width=80, fg_color="#1e1e1e", corner_radius=2)
     sidebar.pack(side="left", fill="y", padx=0, pady=0)
@@ -168,7 +169,7 @@ def gui(root, db_prenoms):
 #
 #===============================================================================================================
     # Import de l'image contenant les contributeurs
-    contributors = ctk.CTkImage(Image.open(resource_path("Icons/contributors.png")), size=(440, 180))
+    contributors = ctk.CTkImage(Image.open(resource_path("Icons/contributors.png")), size=(240, 240))
 
     # Texte d'accueil
     label_bonjour = ctk.CTkLabel(
@@ -180,21 +181,25 @@ def gui(root, db_prenoms):
     label_expliquation = ctk.CTkLabel(
         home_frame,
         text="Vous êtes actuellement sur le 'Prénomator 3000 EXTRA MAX V2.0' ou plus communément appelé le 'Prénomator'. \nVous avez été choisi.e afin de pouvoir" \
-            " tester ce petit bijou de technologie qu'est le Prénomator.\n\n"\
-            " Voici les différents onglets disponibles sur la sidebar du Prénomator :\n\n"\
-            "•Onglet 'Home': retour à l'accueil.\n"\
-            "•Onglet 'Search': recherche de votre nom et de sa popularité.\nN'oubliez pas de sélectionner le bon genre ainsi que de cliquer sur valider OU appuyer sur la touche 'enter'. \n"\
-            "•Onglet 'Statistiques': affichage de la courbe représentatrice des naissances en France.\n"\
-            "•Onglet 'Évolution': affichage de l'évolution du nom.\n"\
-            "•Onglet 'Classement': classement masculin et féminin des 10 prénoms les plus donnés selon l'année sélectionnée.\n\n"\
-            "Vous pouvez désactiver le 'Dark-mode' grâce au switch homonyme sur la sidebar.",
-        font=("TimesNewRoman", 25)
-    )
+                    " tester ce petit bijou de technologie qu'est le Prénomator.\n\n"\
+                    " Voici les différents onglets disponibles sur la sidebar du Prénomator :\n\n"\
+                    "•Onglet 'Home': retour à l'accueil.\n"\
+                    "•Onglet 'Search': recherche de votre nom et de sa popularité.\nN'oubliez pas de sélectionner le bon genre ainsi que de cliquer sur valider OU appuyer sur la touche 'enter'. \n"\
+                    "•Onglet 'Statistiques': affichage de la courbe représentatrice des naissances en France.\n"\
+                    "•Onglet 'Évolution': affichage de l'évolution du nom.\n"\
+                    "•Onglet 'Classement': classement masculin et féminin des 10 prénoms les plus donnés selon l'année sélectionnée.\n",
+                font=("TimesNewRoman", 25)
+            )
     label_expliquation.pack()
 
     # Affichage de l'image des contributeurs au projets
     contributors_label = ctk.CTkLabel(home_frame, image=contributors, text="")
-    contributors_label.pack(pady=20)
+    contributors_label.pack()
+    label_dark_mode_help = ctk.CTkLabel(home_frame, text="Vous pouvez désactiver le 'Dark-mode' sur la sidebar.",
+        font=("TimesNewRoman", 20)
+
+    )
+    label_dark_mode_help.pack()
 
 #===============================================================================================================
 #                                           SEARCH
@@ -469,11 +474,11 @@ def gui(root, db_prenoms):
             occur, annee = get_max_occurrence(prenom, genre_code)
             display_annee = "Année inconnue" if annee == "XXXX" else annee
             lines.append(f"{prenom[0] + prenom[1:].lower()} | {genre_str} | Max: {occur} en {display_annee}")
-            label = ctk.CTkLabel(lignes_stats_frame, 
+            label = ctk.CTkLabel(lignes_stats_frame,
                                  text=f"{prenom[0].upper() + prenom[1:].lower()} | {genre_str} | Max: {occur} en {display_annee}",
                                  text_color=prenoms_sexe_select[(prenom, genre_code)], anchor="w", font=("Arial", 24))
             label.pack(anchor="w", padx=2)
- 
+
 
         #stats_label.configure(text="\n".join(lines), text_color=prenoms_sexe_select[(prenom, genre_code)])
 
@@ -757,67 +762,67 @@ def gui(root, db_prenoms):
         - Obtient les données depuis la base
         - Affiche les tableaux avec mise en forme
         """
-        
+
         # 1. Récupération des données
         annee_selectionnee = selection_annee.get()
         les_tops = classements(annee_selectionnee, db_prenoms)
-        
+
         # Extraction des listes filles et garçons
         liste_garcon = les_tops['masculin']
         liste_fille = les_tops['feminin']
-        
+
         # Ajout des en-têtes de colonnes
         titres = ("Prénom", "Nombre de naissances")
         liste_fille.insert(0, titres)
         liste_garcon.insert(0, titres)
-        
+
         # Définition des couleurs spéciales pour les 3 premières places
         couleurs_classement = {
             1: '#fcb434',  # Or
             2: '#d7d7d7',  # Argent
             3: '#a77044'   # Bronze
         }
-        
+
         # 2. Nettoyage des anciens widgets
         for widget in frame_tableau_fille.winfo_children():
             widget.destroy()
         for widget in frame_tableau_garcon.winfo_children():
             widget.destroy()
-        
+
         # 3. Création du tableau des filles
         for i, ligne in enumerate(liste_fille):
             for j, case in enumerate(ligne):
                 label = ctk.CTkLabel(
-                    frame_tableau_fille, 
-                    text=case, 
-                    width=100, 
-                    anchor='center', 
-                    font=("Arial", 24), 
+                    frame_tableau_fille,
+                    text=case,
+                    width=100,
+                    anchor='center',
+                    font=("Arial", 24),
                     text_color=couleurs_classement.get(i, '#ffffff')  # Couleur spéciale pour les 3 premiers
                 )
                 label.grid(row=i, column=j, padx=5, pady=5, sticky='nsew')
-        
+
         # 4. Création du tableau des garçons
         for i, ligne in enumerate(liste_garcon):
             for j, case in enumerate(ligne):
                 label = ctk.CTkLabel(
-                    frame_tableau_garcon, 
-                    text=case, 
-                    width=100, 
-                    anchor='center', 
-                    font=("Arial", 24), 
+                    frame_tableau_garcon,
+                    text=case,
+                    width=100,
+                    anchor='center',
+                    font=("Arial", 24),
                     text_color=couleurs_classement.get(i, '#ffffff')
                 )
                 label.grid(row=i, column=j, padx=5, pady=5, sticky='nsew')
-        
+
         # 5. Configuration du redimensionnement des tableaux
-        
+
         # Pour le tableau des filles
         for i in range(len(liste_fille)):
             frame_tableau_fille.grid_rowconfigure(i, weight=1)
         for j in range(len(titres)):
             frame_tableau_fille.grid_columnconfigure(j, weight=1)
-        
+
         # Pour le tableau des garçons
         for i in range(len(liste_garcon)):
             frame_tableau_garcon.grid_rowconfigure(i, weight=1)
