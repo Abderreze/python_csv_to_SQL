@@ -1,17 +1,17 @@
 # Prénomator 3000 EXTRA MAX V2.0
 
-Le `Prénomator 3000 EXTRA MAX V2.0` est un programme très puissant se sérvant d'[open data](www.data.gouv.fr) pour vous offrir multes fonctionnalités et données statistiques en relation avec les prénoms en France.
+Le `Prénomator 3000 EXTRA MAX V2.0` est un programme très puissant se sérvant d'[open data](www.data.gouv.fr) pour vous offrir moultes fonctionnalités et données statistiques en relation avec les prénoms en France.
 
 ## Fonctionnalités
 
-- Intérface graphique utilisant CustomTkinter
+- Interface graphique utilisant CustomTkinter
 - Permet de trouver un prénom et découvrir sa popularité au fil des années (en terme de naissances) dans l'onglet **Recherche**
 - Permet de visualizer les tendances générales des naissances en France dans l'onglet **Statistiques**
 - Permet d'analyser l'évolution d'un prénom spécifique (tendances croissantes, décroissantes) dans l'onglet 
 - Vous fait découvrir les classements des prénoms les plus populaires par année (en fonction du nombre de naissances) dans l'onglet **Classement**
-- Des modes d'affichage clairs et sombres, vos yeux méritent le méilleur!
-- Les chemins des ressources sont gérés pour fonctionner dans un environnement compilé nous permettant d'ainsi vous fournir un ZIP contenant tout le nécessaire pour la bonne execution du programme (même si vous avez pas python ou manquez certaines dépendances), facilitant ainsi l'utilisation du `Prénomator 3000 EXTRA MAX V2.0`
-- Télécharge lui-même les fichiers auxiliaires nécessaires à son éxécution (fichiers CSV, txt...) et s'initialize par lui-même permettant de ne prendre qu'un espace de stockage intial infime
+- Des modes d'affichage clairs et sombres, vos yeux méritent le meilleur!
+- Les chemins des ressources sont gérés pour fonctionner dans un environnement compilé nous permettant ainsi de vous fournir un ZIP contenant tout le nécessaire pour la bonne execution du programme (même si vous n'avez pas python ou manquez certaines dépendances), facilitant ainsi l'utilisation du `Prénomator 3000 EXTRA MAX V2.0`
+- Télécharge lui-même les fichiers auxiliaires nécessaires à son éxécution (fichiers CSV, txt...) et s'initialise par lui-même permettant de ne prendre qu'un espace de stockage intial infime
 
 
 ## Prérequis
@@ -53,6 +53,6 @@ Le fichier `config.ini` permet de définir les paramètres suivants :
 - Chemins des fichiers de données.
 - URLs des fichiers à télécharger.
 - Répertoires de stockage temporaire.
-> Attention: le modifier sans éxperience/à l'aveugle peut résulter dans la corruption du programme
+> Attention: le modifier sans experience/à l'aveugle peut résulter dans la corruption du programme
 ---
 Pour toute question ou assistance, veuillez contacter <contact@bzale.com>.
