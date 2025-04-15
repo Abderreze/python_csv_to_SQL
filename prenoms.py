@@ -73,7 +73,7 @@ def download_and_process_data(stop_event):
     Télécharge et importe les données dans la base de données.
 
     Args:
-        stop_event (threading.Event): Événement pour arrêter le téléchargement et l'importation des données.
+        stop_event (threading.Event): Événement pour signaler la fin du téléchargement et l'importation des données.
     """
     try:
         # pour s'assurer que la dernière configuration est récupérée
