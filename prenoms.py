@@ -36,7 +36,7 @@ def spinner(label, stop_event):
             for char in chars:
                 if stop_event.is_set():
                     break
-                text = char + " Base de données en cours d'initialisation"
+                text = char + " Base de données en cours d'initialisation " + char
                 label.configure(text=text)
                 label.update()  # Force the label to update immediately
                 time.sleep(0.1)
@@ -60,6 +60,8 @@ def initialise_db(parent):
     running_window.title("initialisation base de données")
     running_label = ctk.CTkLabel(running_window, text="")
     running_label.pack(padx=20, pady=10)
+    warn_label = ctk.CTkLabel(running_window, text="NE PAS FERMER")
+    warn_label.pack(padx=20, pady=50)
 
     stop_event = threading.Event()
 
@@ -206,7 +208,7 @@ def check_gen_db(parent, database_path):
                 ask_for_existing_path(parent)
             elif choice == "Générer au chemin par défaut":
                 if not initialise_db(parent):
-                    hError = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
+                    parent.withdraw()
                     if os.path.exists(database_path):
                         os.remove(database_path)
                     try:
@@ -215,10 +217,6 @@ def check_gen_db(parent, database_path):
                     except Exception as e:
                         print(e)
                     finally:
-                        def destroy():
-                            hError.destroy()
-                            parent.destroy()
-                        hError.after(5000, destroy)
                         return False
             elif choice == "Spécifier un nouveau chemin pour la générer":
                 db_path = config.get("paths", "database_path")
