@@ -894,67 +894,79 @@ def gui(root, db_prenoms):
 
         # 1. Récupération des données
         annee_selectionnee = selection_annee.get()
-        les_tops = classements(annee_selectionnee, db_prenoms)
+        try:
+            annee_selectionnee_entier = int(annee_selectionnee)
+            if annee_selectionnee_entier >= 1900 and annee_selectionnee_entier <= 2022:
+                les_tops = classements(annee_selectionnee, db_prenoms)
 
-        # Extraction des listes filles et garçons
-        liste_garcon = les_tops['masculin']
-        liste_fille = les_tops['feminin']
+                # Extraction des listes filles et garçons
+                liste_garcon = les_tops['masculin']
+                liste_fille = les_tops['feminin']
 
-        # Ajout des en-têtes de colonnes
-        titres = ("Prénom", "Nombre de naissances")
-        liste_fille.insert(0, titres)
-        liste_garcon.insert(0, titres)
+                # Ajout des en-têtes de colonnes
+                titres = ("Prénom", "Nombre de naissances")
+                liste_fille.insert(0, titres)
+                liste_garcon.insert(0, titres)
 
-        # Définition des couleurs spéciales pour les 3 premières places
-        couleurs_classement = {
-            1: '#fcb434',  # Or
-            2: '#d7d7d7',  # Argent
-            3: '#a77044'   # Bronze
-        }
+                # Définition des couleurs spéciales pour les 3 premières places
+                couleurs_classement = {
+                    1: '#fcb434',  # Or
+                    2: '#d7d7d7',  # Argent
+                    3: '#a77044'   # Bronze
+                }
 
-        # 2. Nettoyage des anciens widgets
-        for widget in frame_tableau_fille.winfo_children():
-            widget.destroy()
-        for widget in frame_tableau_garcon.winfo_children():
-            widget.destroy()
+                # 2. Nettoyage des anciens widgets
+                for widget in frame_tableau_fille.winfo_children():
+                    widget.destroy()
+                for widget in frame_tableau_garcon.winfo_children():
+                    widget.destroy()
 
-        # 3. Création du tableau des filles
-        for i, ligne in enumerate(liste_fille):
-            for j, case in enumerate(ligne):
-                label = ctk.CTkLabel(
-                    frame_tableau_fille,
-                    text=case,
-                    width=100,
-                    anchor='center',
-                    font=("Arial", 24),
-                    text_color=couleurs_classement.get(i, '#ffffff')  # Couleur spéciale pour les 3 premiers
-                )
-                label.grid(row=i, column=j, padx=5, pady=5, sticky='nsew')
+                # 3. Création du tableau des filles
+                for i, ligne in enumerate(liste_fille):
+                    for j, case in enumerate(ligne):
+                        label = ctk.CTkLabel(
+                            frame_tableau_fille,
+                            text=case,
+                            width=100,
+                            anchor='center',
+                            font=("Arial", 24),
+                            text_color=couleurs_classement.get(i, '#ffffff')  # Couleur spéciale pour les 3 premiers
+                        )
+                        label.grid(row=i, column=j, padx=5, pady=5, sticky='nsew')
 
-        # 4. Création du tableau des garçons
-        for i, ligne in enumerate(liste_garcon):
-            for j, case in enumerate(ligne):
-                label = ctk.CTkLabel(
-                    frame_tableau_garcon,
-                    text=case,
-                    width=100,
-                    anchor='center',
-                    font=("Arial", 24),
-                    text_color=couleurs_classement.get(i, '#ffffff')
-                )
-                label.grid(row=i, column=j, padx=5, pady=5, sticky='nsew')
+                # 4. Création du tableau des garçons
+                for i, ligne in enumerate(liste_garcon):
+                    for j, case in enumerate(ligne):
+                        label = ctk.CTkLabel(
+                            frame_tableau_garcon,
+                            text=case,
+                            width=100,
+                            anchor='center',
+                            font=("Arial", 24),
+                            text_color=couleurs_classement.get(i, '#ffffff')
+                        )
+                        label.grid(row=i, column=j, padx=5, pady=5, sticky='nsew')
 
-        # 5. Configuration du redimensionnement des tableaux
+                # 5. Configuration du redimensionnement des tableaux
 
-        # Pour le tableau des filles
-        for i in range(len(liste_fille)):
-            frame_tableau_fille.grid_rowconfigure(i, weight=1)
-        for j in range(len(titres)):
-            frame_tableau_fille.grid_columnconfigure(j, weight=1)
+                # Pour le tableau des filles
+                for i in range(len(liste_fille)):
+                    frame_tableau_fille.grid_rowconfigure(i, weight=1)
+                for j in range(len(titres)):
+                    frame_tableau_fille.grid_columnconfigure(j, weight=1)
 
-        # Pour le tableau des garçons
-        for i in range(len(liste_garcon)):
-            frame_tableau_garcon.grid_rowconfigure(i, weight=1)
-        for j in range(len(titres)):
-            frame_tableau_garcon.grid_columnconfigure(j, weight=1)
-            label.grid(row=i, column=j, padx=5, pady=5)
+                # Pour le tableau des garçons
+                for i in range(len(liste_garcon)):
+                    frame_tableau_garcon.grid_rowconfigure(i, weight=1)
+                for j in range(len(titres)):
+                    frame_tableau_garcon.grid_columnconfigure(j, weight=1)
+                    label.grid(row=i, column=j, padx=5, pady=5)
+            else:
+                raise ValueError
+        except ValueError:
+            label = ctk.CTkLabel(frame_tableau_garcon)
+            label.pack()
+            label.configure(text="Cette année est impossible, elle doit être entre 1900 et 2022 et sous forme décimale",
+                            font=('Arial', 24),
+                            text_color='#ff0000')
+
