@@ -10,7 +10,6 @@ from matplotlib.ticker import ScalarFormatter
 
 # Style de graphique avec fond sombre
 plt.style.use('dark_background')
-
 def graphe_prenom(db_prenoms: str, prenoms_sexes_couleur: dict, naiss_rangs_connus: dict) -> tuple:
     """Génère des graphiques d'évolution des naissances et des rangs pour des prénoms donnés.
 
@@ -31,6 +30,7 @@ def graphe_prenom(db_prenoms: str, prenoms_sexes_couleur: dict, naiss_rangs_conn
         - Crée deux subplots : naissances par année et évolution du rang
         - Le graphique des rangs utilise une échelle logarithmique inversée
     """
+    plt.tight_layout(rect=[0, 0, 0, 0])
     if naiss_rangs_connus is None:
         naiss_rangs_connus = dict()
 
@@ -49,13 +49,14 @@ def graphe_prenom(db_prenoms: str, prenoms_sexes_couleur: dict, naiss_rangs_conn
     existe = set(prenoms_sexes_couleur.keys()) <= prenoms_sexe
 
     # Configuration de la figure matplotlib
-    fig = Figure(figsize=(5, 8), dpi=100)
+    fig = Figure(figsize=(7, 8), dpi=100)
     plot_naissances = fig.add_subplot(2, 1, 1)  # Subplot pour les naissances
     plot_rangs = fig.add_subplot(2, 1, 2)       # Subplot pour les rangs
 
     # Configuration des axes pour le plot des naissances
     plot_naissances.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
     plot_naissances.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
+    
 
     # Configuration des axes pour le plot des rangs
     plot_rangs.xaxis.set_major_locator(ticker.MaxNLocator(nbins=(2022 - 1900)//10, integer=True))
@@ -118,8 +119,8 @@ def graphe_prenom(db_prenoms: str, prenoms_sexes_couleur: dict, naiss_rangs_conn
             # Tracé des rangs
             x, y = sorted([int(an) for an in rangs_par_annees.keys()]), [rangs_par_annees[str(an)] for an in x]
             plot_rangs.plot(x, y, marker=None, linestyle='-', color=couleur)
-            plot_rangs.set_xlabel('Rangs')
-            plot_rangs.set_ylabel('Années')
+            plot_rangs.set_xlabel('Années')
+            plot_rangs.set_ylabel('Rangs')
         else:
             print(f"Le prénom {prenom} n'est pas dans la base de données")
 
