@@ -18,17 +18,21 @@ config = configparser.ConfigParser()
 config.read(resource_path('config.ini'))
 
 def spinner(label, stop_event):
-    chars = ['⣾','⣽','⣻','⢿','⡿','⣟', '⣯', '⣷']
-    while not stop_event.is_set():
-        for char in chars:
-            if stop_event.is_set():
-                break
-            text = char + " Base de données en cours d'initialisation"
-            label.configure(text=text)
-            label.update()  # Force the label to update immediately
-            time.sleep(0.1)
-    label.winfo_toplevel().destroy()
-    return True
+    try:
+        chars = ['⣾','⣽','⣻','⢿','⡿','⣟', '⣯', '⣷']
+        while not stop_event.is_set():
+            for char in chars:
+                if stop_event.is_set():
+                    break
+                text = char + " Base de données en cours d'initialisation"
+                label.configure(text=text)
+                label.update()  # Force the label to update immediately
+                time.sleep(0.1)
+        label.winfo_toplevel().destroy()
+        return True
+    except Exception as e:
+        print(e)
+        return False
 
 
 
@@ -164,6 +168,7 @@ def check_gen_db(parent, database_path):
                             hError.destroy()
                             parent.destroy()
                         hError.after(5000, destroy)
+                        return False
 
             elif choice == "Spécifier un nouveau chemin pour la générer":
                 db_path = config.get("paths", "database_path")
