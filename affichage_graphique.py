@@ -70,7 +70,7 @@ def gui(root, db_prenoms):
     classement_icon = ctk.CTkImage(Image.open(resource_path("Icons/classement.png")), size=(24, 24))
 
     # Création de la frame servant de sidebar
-    sidebar = ctk.CTkFrame(root, width=80, fg_color="#1e1e1e", corner_radius=2)
+    sidebar = ctk.CTkFrame(root, width=80, fg_color="transparent", corner_radius=2)
     sidebar.pack(side="left", fill="y", padx=0, pady=0)
     sidebar.pack_propagate(False) #la taille de sidebar n'est pas définis par ces enfants (dans se cas les icons)
     ctk.CTkLabel(sidebar, text="", height=20).pack()
@@ -154,7 +154,6 @@ def gui(root, db_prenoms):
     switch_label = ctk.CTkLabel(
         switch_frame,
         text="Dark-mode",
-        text_color="white",
         anchor="center",
         justify="center",
         font=("", 11)
@@ -221,6 +220,38 @@ def gui(root, db_prenoms):
     scroll_frame.bind("<Enter>", _bound_to_mousewheel)
     scroll_frame.bind("<Leave>", _unbound_to_mousewheel)
 
+    # Fonction générique pour créer des icônes dans des frames
+    def create_icon_frame(parent, icon_path, size=(100, 100), text=""):
+        try:
+            # Chargez l'image avec gestion d'erreur
+            icon_img = ctk.CTkImage(Image.open(resource_path(icon_path)), size=size)
+
+            # Créez le frame conteneur
+            icon_frame = ctk.CTkFrame(
+                parent,
+                width=size[0]+20,
+                height=size[1]+20,
+                corner_radius=10,
+                fg_color="transparent"  # Adapte la couleur au dark/light mode
+            )
+            icon_frame.pack_propagate(False)
+
+            # Ajoutez l'image
+            ctk.CTkLabel(
+                icon_frame,
+                image=icon_img,
+                text="",
+                compound="top" if text else None,
+                corner_radius=5,
+                font=("Arial", 12),
+                fg_color="white"
+            ).pack(expand=True)
+
+            return icon_frame
+        except Exception as e:
+            print(f"Erreur lors du chargement de l'icône {icon_path}: {e}")
+            return None
+
     # Section d'explication avec des cartes modernes
     def create_info_card(title, content):
         card = ctk.CTkFrame(
@@ -250,11 +281,10 @@ def gui(root, db_prenoms):
 
         return card
 
-    # Cartes d'information
+    # Cartes d'information principales
     create_info_card(
         "Bienvenue !",
-        "Vous êtes actuellement sur le 'Prénomator 3000 EXTRA MAX V2.0' ou plus communément appelé le 'Prénomator'. " \
-        "Vous avez été choisi.e afin de pouvoir tester ce petit bijou de technologie qu'est le Prénomator."
+        "Vous êtes actuellement sur le 'Prénomator 3000 EXTRA MAX V2.0' ou plus communément appelé le 'Prénomator'. Vous avez été choisi.e afin de pouvoir tester ce petit bijou de technologie qu'est le Prénomator."
     )
 
     create_info_card(
@@ -263,44 +293,40 @@ def gui(root, db_prenoms):
     )
 
     # Liste des fonctionnalités avec icônes
-    features_frame = ctk.CTkFrame(scroll_frame)
+    features_frame = ctk.CTkFrame(scroll_frame, fg_color="transparent")
     features_frame.pack(fill="x", pady=5)
 
-    # Icônes pour chaque fonctionnalité
-    search_icon_small = ctk.CTkImage(Image.open(resource_path("Icons/search.png")), size=(20, 20))
-    stats_icon_small = ctk.CTkImage(Image.open(resource_path("Icons/stats.png")), size=(20, 20))
-    evolution_icon_small = ctk.CTkImage(Image.open(resource_path("Icons/evolution.png")), size=(20, 20))
-    classement_icon_small = ctk.CTkImage(Image.open(resource_path("Icons/classement.png")), size=(20, 20))
-
+    # Configuration des fonctionnalités
     features = [
-        ("Recherche", "Trouvez votre prénom et découvrez sa popularité au fil des années", search_icon_small),
-        ("Statistiques", "Visualisez les tendances générales des naissances en France", stats_icon_small),
-        ("Évolution", "Analysez l'évolution d'un prénom spécifique", evolution_icon_small),
-        ("Classement", "Découvrez les prénoms les plus populaires par année", classement_icon_small)
+        ("Recherche", "Trouvez votre prénom et découvrez sa popularité au fil des années", "Icons/search.png"),
+        ("Statistiques", "Visualisez les tendances générales des naissances en France", "Icons/stats.png"),
+        ("Évolution", "Analysez l'évolution d'un prénom spécifique", "Icons/evolution.png"),
+        ("Classement", "Découvrez les prénoms les plus populaires par année", "Icons/classement.png")
     ]
 
-    for i, (title, desc, icon) in enumerate(features):
-        feature_card = ctk.CTkFrame(features_frame, corner_radius=10)
+    # Création des cartes de fonctionnalités
+    for feature_name, feature_desc, icon_path in features:
+        feature_card = ctk.CTkFrame(features_frame, fg_color="transparent")
         feature_card.pack(fill="x", pady=5)
 
         # Icône
-        ctk.CTkLabel(feature_card, image=icon, text="").pack(side="left", padx=10)
+        if icon := create_icon_frame(feature_card, icon_path, size=(40, 40), text=feature_name):
+            icon.pack(side="left", padx=10)
 
-        # Texte
-        text_frame = ctk.CTkFrame(feature_card, fg_color="transparent")
-        text_frame.pack(side="left", fill="x", expand=True)
+        # Texte descriptif
+        desc_frame = ctk.CTkFrame(feature_card, fg_color="transparent")
+        desc_frame.pack(side="left", fill="x", expand=True)
 
         ctk.CTkLabel(
-            text_frame,
-            text=title,
+            desc_frame,
+            text=feature_name,
             font=("Arial", 16, "bold")
         ).pack(anchor="w")
 
         ctk.CTkLabel(
-            text_frame,
-            text=desc,
-            font=("Arial", 12),
-            wraplength=600,
+            desc_frame,
+            text=feature_desc,
+            font=("Arial", 14),
             justify="left"
         ).pack(anchor="w")
 
