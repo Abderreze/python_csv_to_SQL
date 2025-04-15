@@ -156,7 +156,8 @@ def check_gen_db(parent, database_path):
             elif choice == "Générer au chemin par défaut":
                 if not initialise_db(parent):
                     hError = display_notification(parent, "Erreur", "La création de la base de données a échoué. Veuillez vérifier votre connexion internet et la configuration")
-                    os.remove(database_path)
+                    if os.path.exists(database_path):
+                        os.remove(database_path)
                     try:
                         import shutil
                         data_dir = config.get('paths', 'data_directory')
