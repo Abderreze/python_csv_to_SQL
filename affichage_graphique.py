@@ -923,7 +923,10 @@ def gui(root, db_prenoms):
 #                                           CLASSEMENT
 #
 #===============================================================================================================
-# Création de la frame de sélection (pour les boutons et combobox)
+
+    title_frame_classement = ctk.CTkFrame(classement_frame, fg_color="transparent")
+    title_frame_classement.pack(pady=20)
+    # Création de la frame de sélection (pour les boutons et combobox)
     frame_selection = ctk.CTkFrame(classement_frame, corner_radius=15, fg_color='transparent')
     frame_selection.pack(side="top", fill="x", padx=10, pady=10)
 
@@ -939,8 +942,6 @@ def gui(root, db_prenoms):
 
 
     # Titre clignotant pour l'onglet Classement
-    title_frame_classement = ctk.CTkFrame(classement_frame, fg_color="transparent")
-    title_frame_classement.pack(pady=(0, 20))
 
     def update_title_color_classement():
         colors = ["#4CC9F0", "#F72585", "#7209B7", "#3A0CA3", "#4361EE"]
