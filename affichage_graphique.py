@@ -186,7 +186,7 @@ def gui(root, db_prenoms):
             "•Onglet 'Search': recherche de votre nom et de sa popularité.\nN'oubliez pas de sélectionner le bon genre ainsi que de cliquer sur valider OU appuyer sur la touche 'enter'. \n"\
             "•Onglet 'Statistiques': affichage de la courbe représentatrice des naissances en France.\n"\
             "•Onglet 'Évolution': affichage de l'évolution du nom.\n"\
-            "•Onglet 'Classement':                      .\n\n"\
+            "•Onglet 'Classement': classement masculin et féminin des 10 prénoms les plus donnés selon l'année sélectionnée.\n\n"\
             "Vous pouvez désactiver le 'Dark-mode' grâce au switch homonyme sur la sidebar.",
         font=("TimesNewRoman", 25)
     )
@@ -272,8 +272,10 @@ def gui(root, db_prenoms):
     frame_info.pack(side="left", padx=10, pady=10, fill="both", expand=True, anchor="w")
     label_info = ctk.CTkLabel(frame_info, text="Informations sur le prénom", font=("Arial", 16, "bold"))
     label_info.pack(pady=5)
-    stats_label = ctk.CTkLabel(frame_info, text="", anchor="w", justify="left", font=("Arial", 24))
-    stats_label.pack(pady=10, fill="both", expand=False)
+    lignes_stats_frame = ctk.CTkFrame(frame_info, fg_color='transparent')
+    lignes_stats_frame.pack(pady=2, padx=2, expand=False, anchor='n', side='top')
+    #stats_label = ctk.CTkLabel(frame_info, text="", anchor="w", justify="left", font=("Arial", 24))
+    #stats_label.pack(pady=10, fill="both", expand=False)
 
 # Frame droite : Graphiques
     frame_graphiques = ctk.CTkFrame(middle_container, corner_radius=15)
@@ -458,16 +460,26 @@ def gui(root, db_prenoms):
 # Mise à jour de l'affichage des stats
     def update_stats_display():
         lines = []
+        for widget in lignes_stats_frame.winfo_children():
+            if isinstance(widget, ctk.CTkLabel):
+                widget.destroy()
+
         for (prenom, genre_code) in prenoms_sexe_select:
             genre_str = "masculin" if genre_code == 1 else "féminin"
             occur, annee = get_max_occurrence(prenom, genre_code)
             display_annee = "Année inconnue" if annee == "XXXX" else annee
             lines.append(f"{prenom[0] + prenom[1:].lower()} | {genre_str} | Max: {occur} en {display_annee}")
-        stats_label.configure(text="\n".join(lines))
+            label = ctk.CTkLabel(lignes_stats_frame, 
+                                 text=f"{prenom[0].upper() + prenom[1:].lower()} | {genre_str} | Max: {occur} en {display_annee}",
+                                 text_color=prenoms_sexe_select[(prenom, genre_code)], anchor="w", font=("Arial", 24))
+            label.pack(anchor="w", padx=2)
+ 
+
+        #stats_label.configure(text="\n".join(lines), text_color=prenoms_sexe_select[(prenom, genre_code)])
 
 # Suggestions de prénoms
     suggestion_frame = ctk.CTkScrollableFrame(master=frame_info, fg_color="transparent")
-    suggestion_frame.pack()
+    suggestion_frame.pack(anchor="n")
     def update_suggestion(event=None):
         typed = search.get().upper()
         for widget in suggestion_frame.winfo_children():
