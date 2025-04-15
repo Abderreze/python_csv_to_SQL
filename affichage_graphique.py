@@ -442,8 +442,7 @@ def gui(root, db_prenoms):
     label_info.pack(pady=5)
     lignes_stats_frame = ctk.CTkFrame(frame_info, fg_color='transparent')
     lignes_stats_frame.pack(pady=2, padx=2, expand=False, anchor='n', side='top')
-    #stats_label = ctk.CTkLabel(frame_info, text="", anchor="w", justify="left", font=("Arial", 24))
-    #stats_label.pack(pady=10, fill="both", expand=False)
+
 
 # Frame droite : Graphiques
     frame_graphiques = ctk.CTkFrame(middle_container, corner_radius=15)
@@ -673,7 +672,7 @@ def gui(root, db_prenoms):
 
     entry_custom.bind("<KeyRelease>", update_suggestion)
     add_button = ctk.CTkButton(controls_container, text="Ajouter", command=on_enter, width=80)
-    add_button.grid(row=0, column=2, padx=(10,20), pady=5)
+    add_button.grid(row=0, column=4, padx=(10,20), pady=5)
 
 #===============================================================================================================
 #                                           STATISTIQUES
