@@ -8,6 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from random import randint
 from PIL import Image, ImageTk
 from Graphes.graphe_de_ton_prenom import graphe_prenom
+from Graphes.classements import classements
 from collections import defaultdict
 from Utils.path import resource_path
 
@@ -695,34 +696,119 @@ def gui(root, db_prenoms):
 #                                           CLASSEMENT
 #
 #===============================================================================================================
-    # création des cadres pour les tableaux
-    frame_tableau_garcon = ctk.CTkFrame(master=classement_frame)
-    frame_tableau_fille = ctk.CTkFrame(master=classement_frame)
-    frame_tableau_fille.pack(side='left', padx=10, pady=20, expand=True, fill='both')
-    frame_tableau_garcon.pack(side='right', padx=10, pady=20, expand=True, fill='both')
 
-    # boutons pour intéragir
+# Création de la frame de sélection (pour les boutons et combobox)
+    frame_selection = ctk.CTkFrame(classement_frame, corner_radius=15)
+    frame_selection.pack(side="top", fill="x", padx=10, pady=10)
+
+# Configuration des colonnes de la frame de sélection pour centrer les éléments
+    frame_selection.grid_columnconfigure(0, weight=1)
+    frame_selection.grid_columnconfigure(1, weight=1)
+
+# Création d'une frame conteneur principale pour les tableaux
+# Cette frame va nous permettre de bien centrer les deux tableaux
+    frame_conteneur_tableaux = ctk.CTkFrame(classement_frame)
+    frame_conteneur_tableaux.pack(expand=True, fill='both', pady=20)
+
+# Création des frames pour chaque tableau (filles et garçons)
+    frame_tableau_fille = ctk.CTkFrame(master=frame_conteneur_tableaux)
+    frame_tableau_garcon = ctk.CTkFrame(master=frame_conteneur_tableaux)
+
+# Placement des tableaux côte à côte avec grid()
+# Note: expand=True et sticky='nsew' permettent un bon redimensionnement
+    frame_tableau_fille.grid(row=0, column=0, padx=20, pady=20, sticky='nsew')
+    frame_tableau_garcon.grid(row=0, column=1, padx=20, pady=20, sticky='nsew')
+
+# Configuration des poids des colonnes de la frame conteneur
+# Cela permet de centrer les tableaux et de gérer l'espacement
+    frame_conteneur_tableaux.grid_columnconfigure(0, weight=1)
+    frame_conteneur_tableaux.grid_columnconfigure(1, weight=1)
+    frame_conteneur_tableaux.grid_rowconfigure(0, weight=1)
+
+# Création des éléments d'interface dans la frame de sélection
+# Combobox pour choisir l'année
     annees_possibles = [str(i) for i in range(1900, 2023)]
-    selection_annee = ctk.CTkComboBox(master=classement_frame, values=annees_possibles)
-    selection_annee.pack(pady=20)
+    selection_annee = ctk.CTkComboBox(master=frame_selection, values=annees_possibles)
+    selection_annee.grid(row=0, column=0, padx=20)
+
+# Bouton pour afficher les résultats
+    classement_button = ctk.CTkButton(frame_selection, text="Afficher", command=lambda: affiche_tableau_classement())
+    classement_button.grid(row=0, column=1, padx=20)
+
+# Lier l'événement de sélection à la fonction d'affichage
     selection_annee.bind('<<ComboboxSelected>>', lambda e: affiche_tableau_classement())
-    classement_button = ctk.CTkButton(classement_frame, text="Afficher", command=lambda: affiche_tableau_classement())
-    classement_button.pack(pady=20)
 
     def affiche_tableau_classement(event=None):
-        '''
-        Permet d'afficher dans un tableau les 10 prénoms les plus donnés selon l'année choisie
-        '''
+        """
+        Fonction principale pour afficher les tableaux de classement
+        - Récupère l'année sélectionnée
+        - Obtient les données depuis la base
+        - Affiche les tableaux avec mise en forme
+        """
+        
+        # 1. Récupération des données
         annee_selectionnee = selection_annee.get()
         les_tops = classements(annee_selectionnee, db_prenoms)
-        #print(les_tops)
+        
+        # Extraction des listes filles et garçons
         liste_garcon = les_tops['masculin']
         liste_fille = les_tops['feminin']
+        
+        # Ajout des en-têtes de colonnes
+        titres = ("Prénom", "Nombre de naissances")
+        liste_fille.insert(0, titres)
+        liste_garcon.insert(0, titres)
+        
+        # Définition des couleurs spéciales pour les 3 premières places
+        couleurs_classement = {
+            1: '#fcb434',  # Or
+            2: '#d7d7d7',  # Argent
+            3: '#a77044'   # Bronze
+        }
+        
+        # 2. Nettoyage des anciens widgets
+        for widget in frame_tableau_fille.winfo_children():
+            widget.destroy()
+        for widget in frame_tableau_garcon.winfo_children():
+            widget.destroy()
+        
+        # 3. Création du tableau des filles
         for i, ligne in enumerate(liste_fille):
             for j, case in enumerate(ligne):
-                label = ctk.CTkLabel(frame_tableau_fille, text=case, width=100, anchor='center')
-                label.grid(row=i, column=j, padx=5, pady=5)
+                label = ctk.CTkLabel(
+                    frame_tableau_fille, 
+                    text=case, 
+                    width=100, 
+                    anchor='center', 
+                    font=("Arial", 24), 
+                    text_color=couleurs_classement.get(i, '#ffffff')  # Couleur spéciale pour les 3 premiers
+                )
+                label.grid(row=i, column=j, padx=5, pady=5, sticky='nsew')
+        
+        # 4. Création du tableau des garçons
         for i, ligne in enumerate(liste_garcon):
             for j, case in enumerate(ligne):
-                label = ctk.CTkLabel(frame_tableau_garcon, text=case, width=100, anchor='center')
-                label.grid(row=i, column=j, padx=5, pady=5)
+                label = ctk.CTkLabel(
+                    frame_tableau_garcon, 
+                    text=case, 
+                    width=100, 
+                    anchor='center', 
+                    font=("Arial", 24), 
+                    text_color=couleurs_classement.get(i, '#ffffff')
+                )
+                label.grid(row=i, column=j, padx=5, pady=5, sticky='nsew')
+        
+        # 5. Configuration du redimensionnement des tableaux
+        
+        # Pour le tableau des filles
+        for i in range(len(liste_fille)):
+            frame_tableau_fille.grid_rowconfigure(i, weight=1)
+        for j in range(len(titres)):
+            frame_tableau_fille.grid_columnconfigure(j, weight=1)
+        
+        # Pour le tableau des garçons
+        for i in range(len(liste_garcon)):
+            frame_tableau_garcon.grid_rowconfigure(i, weight=1)
+        for j in range(len(titres)):
+            frame_tableau_garcon.grid_columnconfigure(j, weight=1)
+            label.grid(row=i, column=j, padx=5, pady=5)
