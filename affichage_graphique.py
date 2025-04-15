@@ -923,14 +923,9 @@ def gui(root, db_prenoms):
 #                                           CLASSEMENT
 #
 #===============================================================================================================
-
 # Création de la frame de sélection (pour les boutons et combobox)
     frame_selection = ctk.CTkFrame(classement_frame, corner_radius=15, fg_color='transparent')
     frame_selection.pack(side="top", fill="x", padx=10, pady=10)
-
-# Configuration des colonnes de la frame de sélection pour centrer les éléments
-    frame_selection.grid_columnconfigure(0, weight=1)
-    frame_selection.grid_columnconfigure(1, weight=1)
 
     # Création des éléments d'interface dans la frame de sélection
     # Combobox pour choisir l'année
@@ -958,13 +953,14 @@ def gui(root, db_prenoms):
         text=f"Classement: Top 10 des noms hommes/femmes en ...",
         font=("Arial", 35, "bold")
     )
-    label_classement.pack()
+    label_classement.pack(side="top")
     update_title_color_classement()
 
-    # Mettre à jour le titre quand l'année change
-    def update_classement_title(*args):
-        label_classement.configure(text=f"Classement: Top 10 des noms hommes femmes en {annees_possibles.get() if annees_possibles.get() else 'année sélectionnée'}")
-        annees_possibles.trace_add("write", update_classement_title)
+
+
+# Configuration des colonnes de la frame de sélection pour centrer les éléments
+    frame_selection.grid_columnconfigure(0, weight=1)
+    frame_selection.grid_columnconfigure(1, weight=1)
 # Création d'une frame conteneur principale pour les tableaux
 # Cette frame va nous permettre de bien centrer les deux tableaux
     frame_conteneur_tableaux = ctk.CTkFrame(classement_frame)
