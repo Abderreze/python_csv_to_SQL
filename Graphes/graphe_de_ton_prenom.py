@@ -91,8 +91,9 @@ def graphe_prenom(db_prenoms: str, prenoms_sexes_couleur: dict, naiss_rangs_conn
                 dico_naissances = naiss_rangs_deja_calcules[prenom_sexe]['naissance']
 
             # Tracé des naissances
-            x = list(dico_naissances.keys())
-            y = list(dico_naissances.values())
+            x = sorted([int(an) for an in dico_naissances.keys()])
+
+            y = [dico_naissances[str(an)] for an in x]
             plot_naissances.plot(x, y, linestyle='-', marker=None, color=couleur)
             plot_naissances.set_ylabel("Naissances")
 
@@ -115,7 +116,7 @@ def graphe_prenom(db_prenoms: str, prenoms_sexes_couleur: dict, naiss_rangs_conn
                 rangs_par_annees = naiss_rangs_deja_calcules[prenom_sexe]['rangs']
 
             # Tracé des rangs
-            x, y = list(rangs_par_annees.keys()), list(rangs_par_annees.values())
+            x, y = sorted([int(an) for an in rangs_par_annees.keys()]), [rangs_par_annees[str(an)] for an in x]
             plot_rangs.plot(x, y, marker=None, linestyle='-', color=couleur)
             plot_rangs.set_xlabel('Rangs')
             plot_rangs.set_ylabel('Années')
