@@ -1,10 +1,8 @@
-#!/usr/bin/env python3
 import configparser
 import os
 import customtkinter as ctk
 import time
 import threading
-
 from Utils.config import set_setting
 from Utils.import_births import import_births_to_sql
 from Utils.import_deaths import import_deaths_to_sql
@@ -12,12 +10,26 @@ from Utils.import_suggestions import import_suggestions_file
 from Utils.import_trivia import import_trivia_to_sql
 from Utils.path import resource_path
 from affichage_graphique import gui
+import shutil
+
+#!/usr/bin/env python3
+
 
 # on charge le fichier de configuration
 config = configparser.ConfigParser()
 config.read(resource_path('config.ini'))
 
 def spinner(label, stop_event):
+    """
+    Affiche une animation de chargement en boucle jusqu'à ce que l'événement d'arrêt soit défini.
+
+    Args:
+        label (ctk.CTkLabel): Étiquette pour afficher le texte de l'animation.
+        stop_event (threading.Event): Événement pour arrêter l'animation.
+
+    Returns:
+        bool: True si l'animation s'est terminée avec succès, False sinon.
+    """
     try:
         chars = ['⣾','⣽','⣻','⢿','⡿','⣟', '⣯', '⣷']
         while not stop_event.is_set():
@@ -34,10 +46,16 @@ def spinner(label, stop_event):
         print(e)
         return False
 
-
-
 def initialise_db(parent):
+    """
+    Initialise la base de données en téléchargeant et en important les données.
 
+    Args:
+        parent (ctk.CTk): Fenêtre parent.
+
+    Returns:
+        bool: True si l'initialisation de la base de données s'est terminée avec succès, False sinon.
+    """
     running_window = ctk.CTkToplevel(parent)
     running_window.title("initialisation base de données")
     running_label = ctk.CTkLabel(running_window, text="")
@@ -45,15 +63,20 @@ def initialise_db(parent):
 
     stop_event = threading.Event()
 
-
     download_thread = threading.Thread(target=download_and_process_data, args=(stop_event,), daemon=True)
     download_thread.start()
 
     return spinner(running_label, stop_event)
 
 def download_and_process_data(stop_event):
+    """
+    Télécharge et importe les données dans la base de données.
+
+    Args:
+        stop_event (threading.Event): Événement pour arrêter le téléchargement et l'importation des données.
+    """
     try:
-        # to make sure latest config is fetched
+        # pour s'assurer que la dernière configuration est récupérée
         db_path = config.get("paths", "database_path")
         data_dir = config.get("paths", "data_directory")
         trivia_url = config.get("remote", "trivia_url")
@@ -76,6 +99,12 @@ def download_and_process_data(stop_event):
         stop_event.set()
 
 def ask_for_existing_path(parent):
+    """
+    Affiche une fenêtre pour demander à l'utilisateur de spécifier le chemin d'une base de données existante.
+
+    Args:
+        parent (ctk.CTk): Fenêtre parent.
+    """
     path_window = ctk.CTkToplevel(parent)
     path_window.title("Chemin BDD")
     path_label = ctk.CTkLabel(path_window, text="Veuillez spécifier le chemin du fichier de base de données existant:")
@@ -98,8 +127,13 @@ def ask_for_existing_path(parent):
     path_window.wait_window()
 
 def ask_for_new_path(parent, db_path):
+    """
+    Affiche une fenêtre pour demander à l'utilisateur de spécifier un nouveau chemin pour créer une nouvelle base de données.
 
-
+    Args:
+        parent (ctk.CTk): Fenêtre parent.
+        db_path (str): Chemin actuel de la base de données.
+    """
     path_window = ctk.CTkToplevel(parent)
     path_window.title("Chemin de la nouvelle base de données")
     path_label = ctk.CTkLabel(path_window, text="Veuillez spécifier le chemin où créer la nouvelle base de données:")
@@ -120,24 +154,41 @@ def ask_for_new_path(parent, db_path):
                 parent.destroy()
             erreur_window.after(5000, destroy)
 
-        
     generate_button = ctk.CTkButton(path_window, text="Générer la base de données ici", command=generate_at_path)
     generate_button.pack(padx=20, pady=10)
     path_window.wait_window()
-    
 
 def display_notification(parent, title, value):
+    """
+    Affiche une fenêtre de notification.
+
+    Args:
+        parent (ctk.CTk): Fenêtre parent.
+        title (str): Titre de la fenêtre de notification.
+        value (str): Contenu de la fenêtre de notification.
+
+    Returns:
+        ctk.CTkToplevel: Fenêtre de notification.
+    """
     success_window = ctk.CTkToplevel(parent)
     success_window.title(title)
     success_label = ctk.CTkLabel(success_window, text=value)
     success_label.pack(padx=20, pady=10)
     return success_window
 
-
 def check_gen_db(parent, database_path):
-    if not os.path.exists(database_path):
+    """
+    Vérifie si la base de données existe et demande à l'utilisateur d'effectuer une action en conséquence.
 
-        choice_window = ctk.CTkToplevel(parent) # a modifier
+    Args:
+        parent (ctk.CTk): Fenêtre parent.
+        database_path (str): Chemin de la base de données.
+
+    Returns:
+        bool: True si la base de données existe, False sinon.
+    """
+    if not os.path.exists(database_path):
+        choice_window = ctk.CTkToplevel(parent)
         choice_window.title("Base de données manquante!!!")
         label = ctk.CTkLabel(choice_window, text="La base de données est introuvable dans le chemin par défaut")
         label.pack(padx=20, pady=10)
@@ -159,7 +210,6 @@ def check_gen_db(parent, database_path):
                     if os.path.exists(database_path):
                         os.remove(database_path)
                     try:
-                        import shutil
                         data_dir = config.get('paths', 'data_directory')
                         shutil.rmtree(data_dir)
                     except Exception as e:
@@ -170,11 +220,9 @@ def check_gen_db(parent, database_path):
                             parent.destroy()
                         hError.after(5000, destroy)
                         return False
-
             elif choice == "Spécifier un nouveau chemin pour la générer":
                 db_path = config.get("paths", "database_path")
                 ask_for_new_path(parent, db_path)
-
 
         confirm_button = ctk.CTkButton(choice_window, text="Confirmer", command=handle_choice)
         confirm_button.pack(padx=20, pady=10)
@@ -185,9 +233,7 @@ def check_gen_db(parent, database_path):
         
     return True
 
-
 if __name__ == "__main__":
-
     db_path = config.get("paths", "database_path")
     app = ctk.CTk()
     if os.name == "posix":
