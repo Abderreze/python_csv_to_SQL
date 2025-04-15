@@ -877,7 +877,7 @@ def gui(root, db_prenoms):
 #===============================================================================================================
 
 # Création de la frame de sélection (pour les boutons et combobox)
-    frame_selection = ctk.CTkFrame(classement_frame, corner_radius=15)
+    frame_selection = ctk.CTkFrame(classement_frame, corner_radius=15, fg_color='transparent')
     frame_selection.pack(side="top", fill="x", padx=10, pady=10)
 
 # Configuration des colonnes de la frame de sélection pour centrer les éléments
@@ -906,8 +906,8 @@ def gui(root, db_prenoms):
 
 # Création des éléments d'interface dans la frame de sélection
 # Combobox pour choisir l'année
-    annees_possibles = [str(i) for i in range(1900, 2023)]
-    selection_annee = ctk.CTkComboBox(master=frame_selection, values=annees_possibles)
+    annees_possibles = ctk.StringVar()
+    selection_annee = ctk.CTkEntry(master=frame_selection, textvariable=annees_possibles)
     selection_annee.grid(row=0, column=0, padx=20)
 
 # Bouton pour afficher les résultats
@@ -915,7 +915,6 @@ def gui(root, db_prenoms):
     classement_button.grid(row=0, column=1, padx=20)
 
 # Lier l'événement de sélection à la fonction d'affichage
-    selection_annee.bind('<<ComboboxSelected>>', lambda e: affiche_tableau_classement())
 
     def affiche_tableau_classement(event=None):
         """
@@ -997,8 +996,19 @@ def gui(root, db_prenoms):
             else:
                 raise ValueError
         except ValueError:
-            label = ctk.CTkLabel(frame_tableau_garcon)
-            label.pack()
-            label.configure(text="Cette année est impossible, elle doit être entre 1900 et 2022 et sous forme décimale",
-                            font=('Arial', 24),
-                            text_color='#ff0000')
+            # Nettoyage préalable
+            for widget in frame_tableau_garcon.winfo_children():
+                widget.destroy()
+            
+            # Utilisation de grid() au lieu de pack()
+            error_label = ctk.CTkLabel(
+                frame_tableau_garcon,
+                text="Erreur : l'année doit être un nombre entre 1900 et 2022",
+                font=('Arial', 20),
+                text_color='red'
+            )
+            error_label.grid(row=0, column=0, padx=20, pady=20)  # <-- Changement ici
+            
+            # Configuration de la grid pour centrer
+            frame_tableau_garcon.grid_rowconfigure(0, weight=1)
+            frame_tableau_garcon.grid_columnconfigure(0, weight=1)
