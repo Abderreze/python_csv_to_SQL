@@ -2,6 +2,13 @@ import sys
 import requests
 
 def import_suggestions_file(file_url):
+    """
+    Télécharge un fichier de suggestions à partir d'une URL et l'enregistre localement.
+    Args:
+        file_url (str): L'URL du fichier à télécharger.
+    Returns:
+        bool: Retourne False en cas d'erreur, sinon rien n'est retourné.
+    """
     if file_url:
         try:
             response = requests.get(file_url)

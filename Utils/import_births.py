@@ -6,10 +6,15 @@ import os
 from Utils.unzip import unzip_file
 
 def create_births_table(db_path):
+    """
+    Crée une table 'prenoms' dans la base de données SQLite si elle n'existe pas.
+
+    ARGUMENTS
+        db_path: (str), chemin vers la base de données SQLite.
+    """
     connection = sqlite3.connect(db_path)
     try:
         cursor = connection.cursor()
-
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS prenoms (
                 sexe INTEGER,
@@ -25,15 +30,19 @@ def create_births_table(db_path):
         connection.close()
 
 def import_csv_sql_births(db_path, csv_file_path):
+    """
+    Importe les données d'un fichier CSV dans la table 'prenoms' de la base de données.
+
+    ARGUMENTS
+        db_path: (str), chemin vers la base de données SQLite.
+        csv_file_path: (str), chemin vers le fichier CSV contenant les données.
+    """
     connection = sqlite3.connect(db_path)
     try:
         cursor = connection.cursor()
-
         with open(csv_file_path, 'r', encoding='UTF-8') as f:
             csv_read = csv.reader(f, delimiter=';')
-
-            next(csv_read)
-
+            next(csv_read)  # Ignore la première ligne (en-têtes)
             for ligne in csv_read:
                 cursor.execute("""
                     INSERT INTO prenoms (sexe, preusuel, annais, nombre)
@@ -42,13 +51,22 @@ def import_csv_sql_births(db_path, csv_file_path):
     except Exception as e:
         print(e)
     finally:
-       connection.commit()
-       connection.close()
-
-
-
+        connection.commit()
+        connection.close()
 
 def import_births_to_sql(db_path, data_dir, file_url):
+    """
+    Télécharge un fichier ZIP contenant les données de naissances, le décompresse,
+    puis importe les données dans la base de données SQLite.
+
+    ARGUMENTS
+        db_path: (str), chemin vers la base de données SQLite.
+        data_dir: (str), répertoire où les fichiers seront temporairement stockés.
+        file_url: (str), URL du fichier ZIP à télécharger.
+
+    RETOURNE
+        (bool): False en cas d'erreur, sinon rien.
+    """
     if file_url:
         try:
             response = requests.get(file_url)
@@ -68,7 +86,7 @@ def import_births_to_sql(db_path, data_dir, file_url):
                     sys.stderr.write(f"Err: Le fichier nat2022.csv n'a pas été trouvé")
                     return False
             else:
-                sys.stderr.write(f"Err: La décompression de l'archive des naissances à échoué")
+                sys.stderr.write(f"Err: La décompression de l'archive des naissances a échoué")
                 return False
         except requests.exceptions.RequestException as e:
             sys.stderr.write(f"Err. lors du téléchargement du fichier ZIP des naissances: {e}")

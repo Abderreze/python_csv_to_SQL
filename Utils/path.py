@@ -2,10 +2,17 @@ import os
 import sys
 
 def resource_path(relative_path):
-    """Donne le chemin absolu à une ressource,
-    permet la compilation avec pyinstaller et utilisation python directe."""
-    if getattr(sys, 'frozen', False): # vérification pour voir si execution depuis .exe
-        base_path = sys._MEIPASS # dossier temporaire pyinstaller
+    """
+    Retourne le chemin absolu vers une ressource, compatible avec PyInstaller.
+
+    ARGUMENTS
+        relative_path: (str), chemin relatif de la ressource.
+
+    RETOURNE
+        (str): chemin absolu vers la ressource.
+    """
+    if getattr(sys, 'frozen', False):  # Vérifie si le script est exécuté depuis un exécutable .exe
+        base_path = sys._MEIPASS  # Dossier temporaire utilisé par PyInstaller
     else:
-        base_path = os.path.abspath(".") # répértoire courant
+        base_path = os.path.abspath(".")  # Répertoire courant
     return os.path.join(base_path, relative_path)
