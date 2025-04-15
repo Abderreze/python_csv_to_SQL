@@ -54,7 +54,7 @@ def graphe_prenom(db_prenoms: str, prenoms_sexes_couleur: dict, naiss_rangs_conn
 
             x = list(dico_naissances.keys())
             y = list(dico_naissances.values())
-            plot_naissances.set_xlabel("Années")
+            plot_naissances.plot(x, y, linestyle='-', marker=None, color=couleur)
             plot_naissances.set_ylabel("Naissances")
             existe = (True and existe)
 
