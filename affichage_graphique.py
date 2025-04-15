@@ -171,36 +171,165 @@ def gui(root, db_prenoms):
     # Import de l'image contenant les contributeurs
     contributors = ctk.CTkImage(Image.open(resource_path("Icons/contributors.png")), size=(240, 240))
 
-    # Texte d'accueil
+    # Création d'un frame principal pour le contenu home
+    home_content = ctk.CTkFrame(home_frame, fg_color="transparent")
+    home_content.pack(expand=True, fill="both", padx=20, pady=20)
+
+    # Frame pour le titre avec animation
+    title_frame = ctk.CTkFrame(home_content, fg_color="transparent")
+    title_frame.pack(pady=(0, 20))
+
+    # Texte d'accueil avec animation de couleur
+    def update_title_color():
+        colors = ["#4CC9F0", "#F72585", "#7209B7", "#3A0CA3", "#4361EE"]
+        current_color = colors[randint(0, len(colors))-1]
+        label_bonjour.configure(text_color=current_color)
+        home_frame.after(2000, update_title_color)
+
     label_bonjour = ctk.CTkLabel(
-        home_frame,
-        text="Bonjour!",
-        font=("TimesNewRoman", 35, "bold")
+        title_frame,
+        text="Prénomator 3000 EXTRA MAX V2.0",
+        font=("Arial", 35, "bold"),
+        text_color="#4CC9F0"
     )
     label_bonjour.pack()
-    label_expliquation = ctk.CTkLabel(
-        home_frame,
-        text="Vous êtes actuellement sur le 'Prénomator 3000 EXTRA MAX V2.0' ou plus communément appelé le 'Prénomator'. \nVous avez été choisi.e afin de pouvoir" \
-                    " tester ce petit bijou de technologie qu'est le Prénomator.\n\n"\
-                    " Voici les différents onglets disponibles sur la sidebar du Prénomator :\n\n"\
-                    "•Onglet 'Home': retour à l'accueil.\n"\
-                    "•Onglet 'Search': recherche de votre nom et de sa popularité.\nN'oubliez pas de sélectionner le bon genre ainsi que de cliquer sur valider OU appuyer sur la touche 'enter'. \n"\
-                    "•Onglet 'Statistiques': affichage de la courbe représentatrice des naissances en France.\n"\
-                    "•Onglet 'Évolution': affichage de l'évolution du nom.\n"\
-                    "•Onglet 'Classement': classement masculin et féminin des 10 prénoms les plus donnés selon l'année sélectionnée.\n",
-                font=("TimesNewRoman", 25)
-            )
-    label_expliquation.pack()
+    update_title_color()
 
-    # Affichage de l'image des contributeurs au projets
-    contributors_label = ctk.CTkLabel(home_frame, image=contributors, text="")
-    contributors_label.pack()
-    label_dark_mode_help = ctk.CTkLabel(home_frame, text="Vous pouvez désactiver le 'Dark-mode' sur la sidebar.",
-        font=("TimesNewRoman", 20)
+    scroll_frame = ctk.CTkScrollableFrame(home_content, fg_color="transparent")
+    scroll_frame.pack(expand=True, fill="both", padx=5, pady=5)
 
+    # Fonction de gestion du scroll
+    def _bound_to_mousewheel(event):
+        scroll_frame._parent_canvas.bind_all("<MouseWheel>", _on_mousewheel) # Windows et Linux
+        scroll_frame._parent_canvas.bind_all("<Button-4>", _on_mousewheel)  # Linux up
+        scroll_frame._parent_canvas.bind_all("<Button-5>", _on_mousewheel)  # Linux down
+
+    def _unbound_to_mousewheel(event):
+        scroll_frame._parent_canvas.unbind_all("<MouseWheel>")
+        scroll_frame._parent_canvas.unbind_all("<Button-4>")
+        scroll_frame._parent_canvas.unbind_all("<Button-5>")
+
+    def _on_mousewheel(event):
+        if event.num == 4:  # Linux scroll up
+            scroll_frame._parent_canvas.yview_scroll(-1, "units")
+        elif event.num == 5:  # Linux scroll down
+            scroll_frame._parent_canvas.yview_scroll(1, "units")
+        else:  # Windows & MacOS
+            scroll_frame._parent_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+    # Activer le scroll quand la souris est sur la scrollframe
+    scroll_frame.bind("<Enter>", _bound_to_mousewheel)
+    scroll_frame.bind("<Leave>", _unbound_to_mousewheel)
+
+
+    # Section d'explication avec des cartes modernes
+    def create_info_card(title, content):
+        card = ctk.CTkFrame(
+            scroll_frame,
+            corner_radius=15,
+            border_width=2,
+            border_color="#3A0CA3"
+        )
+        card.pack(fill="x", pady=10, padx=5)
+
+        # Titre de la carte
+        ctk.CTkLabel(
+            card,
+            text=title,
+            font=("Arial", 18, "bold"),
+            text_color="#F72585"
+        ).pack(pady=(10, 5), padx=10, anchor="w")
+
+        # Contenu
+        ctk.CTkLabel(
+            card,
+            text=content,
+            font=("Arial", 14),
+            justify="left",
+            wraplength=700
+        ).pack(pady=5, padx=10, anchor="w")
+
+        return card
+
+    # Cartes d'information
+    create_info_card(
+        "Bienvenue !",
+        "Vous êtes actuellement sur le 'Prénomator 3000 EXTRA MAX V2.0' ou plus communément appelé le 'Prénomator'. " \
+        "Vous avez été choisi.e afin de pouvoir tester ce petit bijou de technologie qu'est le Prénomator."
     )
-    label_dark_mode_help.pack()
 
+    create_info_card(
+        "Fonctionnalités",
+        "Explorez les différentes fonctionnalités de l'application grâce aux onglets de navigation :"
+    )
+
+    # Liste des fonctionnalités avec icônes
+    features_frame = ctk.CTkFrame(scroll_frame, fg_color="transparent")
+    features_frame.pack(fill="x", pady=5)
+
+    # Icônes pour chaque fonctionnalité
+    search_icon_small = ctk.CTkImage(Image.open(resource_path("Icons/search.png")), size=(20, 20))
+    stats_icon_small = ctk.CTkImage(Image.open(resource_path("Icons/stats.png")), size=(20, 20))
+    evolution_icon_small = ctk.CTkImage(Image.open(resource_path("Icons/evolution.png")), size=(20, 20))
+    classement_icon_small = ctk.CTkImage(Image.open(resource_path("Icons/classement.png")), size=(20, 20))
+
+    features = [
+        ("Recherche", "Trouvez votre prénom et découvrez sa popularité au fil des années", search_icon_small),
+        ("Statistiques", "Visualisez les tendances générales des naissances en France", stats_icon_small),
+        ("Évolution", "Analysez l'évolution d'un prénom spécifique", evolution_icon_small),
+        ("Classement", "Découvrez les prénoms les plus populaires par année", classement_icon_small)
+    ]
+
+    for i, (title, desc, icon) in enumerate(features):
+        feature_card = ctk.CTkFrame(features_frame, fg_color="#1a1a1a", corner_radius=10)
+        feature_card.pack(fill="x", pady=5)
+
+        # Icône
+        ctk.CTkLabel(feature_card, image=icon, text="").pack(side="left", padx=10)
+
+        # Texte
+        text_frame = ctk.CTkFrame(feature_card, fg_color="transparent")
+        text_frame.pack(side="left", fill="x", expand=True)
+
+        ctk.CTkLabel(
+            text_frame,
+            text=title,
+            font=("Arial", 16, "bold"),
+            text_color="#4361EE"
+        ).pack(anchor="w")
+
+        ctk.CTkLabel(
+            text_frame,
+            text=desc,
+            font=("Arial", 12),
+            wraplength=600,
+            justify="left"
+        ).pack(anchor="w")
+
+    # Section contributeurs
+    contributors_frame = ctk.CTkFrame(scroll_frame, fg_color="transparent")
+    contributors_frame.pack(pady=20)
+
+    ctk.CTkLabel(
+        contributors_frame,
+        text="Contributeurs du projet",
+        font=("Arial", 18, "bold"),
+        text_color="#7209B7"
+    ).pack()
+
+    contributors_label = ctk.CTkLabel(contributors_frame, image=contributors, text="")
+    contributors_label.pack(pady=10)
+
+    # Note sur le dark mode
+    dark_mode_note = ctk.CTkFrame(scroll_frame, fg_color="#1a1a1a", corner_radius=10)
+    dark_mode_note.pack(fill="x", pady=20)
+
+    ctk.CTkLabel(
+        dark_mode_note,
+        text="💡 Astuce : Vous pouvez ajuster le mode sombre/clair avec le switch dans la barre latérale",
+        font=("Arial", 14, "italic"),
+        text_color="#4CC9F0"
+    ).pack(pady=10, padx=10)
 #===============================================================================================================
 #                                           SEARCH
 #
