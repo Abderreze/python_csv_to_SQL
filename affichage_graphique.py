@@ -8,6 +8,20 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from random import randint
 from PIL import Image, ImageTk
 from Graphes.graphe_de_ton_prenom import graphe_prenom
+from collections import defaultdict
+from Utils.path import resource_path
+
+naiss_rangs_deja_faits = {} # permettra d'éviter de recalculer pour des prénoms déjà sélectionnés
+import os #permet la vérification de si c'est un windows ou autre
+import customtkinter as ctk
+import sqlite3
+import matplotlib #librairie permettant la création de graphe
+import csv
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from random import randint
+from PIL import Image, ImageTk
+from Graphes.graphe_de_ton_prenom import graphe_prenom
 from Graphes.classements import classements
 from collections import defaultdict
 from Utils.path import resource_path
@@ -162,9 +176,6 @@ def gui(root, db_prenoms):
     # Affichage de la fenêtre
     show_home()
 
-    # Frame principale de l'accueil
-    main_frame = ctk.CTkFrame(search_frame, corner_radius=20)
-    main_frame.pack(expand=True, fill="both", padx=10, pady=10)
 
 #===============================================================================================================
 #                                           HOME
@@ -203,9 +214,65 @@ def gui(root, db_prenoms):
 #                                           SEARCH
 #
 #===============================================================================================================
+# Frame du haut avec contrôles - Réorganisée pour un alignement central
+    upper_frame = ctk.CTkFrame(search_frame, corner_radius=15)
+    upper_frame.pack(side="top", fill="x", padx=10, pady=10)
+# Conteneur principal pour centrer les éléments
+    controls_container = ctk.CTkFrame(upper_frame, fg_color="transparent")
+    controls_container.pack(expand=True, pady=5)
+
+    nom_info = ctk.CTkLabel(controls_container, text="Nom sélectionné:", font=("Arial", 14))
+    nom_info.grid(row=0, column=0, padx=(0,10), pady=5, sticky="e")
+
+    # Fonction déclenchée lors de la validation d’un prénom
+    def on_enter(event=None):
+        """
+        Gère l’ajout d’un prénom à la sélection lorsque l’utilisateur appuie sur Entrée.
+        Met à jour la liste des prénoms affichés et rafraîchit les graphiques et statistiques.
+        """
+        global naiss_rangs_deja_faits  # Pour conserver les résultats calculés précédemment
+        # Récupération du prénom et du sexe sélectionnés
+        prenom = search.get().upper()
+        sexe = sexe_saisi.get()
+        sexe_str = "masculin" if sexe == 1 else "féminin"
+        # Vérifie que le prénom est valide et n'a pas déjà été ajouté
+        if (prenom, sexe_str) not in prenoms_select and (prenom.upper(), sexe) in prenoms_sexe_existants:
+            # Ajoute au dictionnaire des prénoms avec une couleur aléatoire
+            prenoms_sexe_select[(prenom, sexe)] = f"#{randint(0x333333, 0xFFFFFF):06x}"
+            prenoms_select.append((prenom, sexe_str))
+        # Met à jour la liste déroulante des prénoms
+        prenoms_deja_select.configure(values=[f"{p} {s}" for p, s in prenoms_select])
+        # Met à jour le graphique avec le nouveau prénom
+        naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
+        # Met à jour les statistiques affichées
+        update_stats_display()
+
+    # Zone de saisie du prénom
+    search = ctk.StringVar()
+    entry_custom = ctk.CTkEntry(controls_container, placeholder_text="Tape ton prénom ici...", textvariable=search, width=200)
+    entry_custom.grid(row=0, column=1, padx=10, pady=5)
+    entry_custom.bind("<Return>", on_enter)
+
+    # Configuration du genre
+    sexe_frame = ctk.CTkFrame(controls_container, fg_color="transparent")
+    sexe_frame.grid(row=0, column=3, padx=10, pady=5)
+    sexe_saisi = ctk.IntVar(value=1)
+    radio_homme = ctk.CTkRadioButton(sexe_frame, text="Homme", variable=sexe_saisi, value=1)
+    radio_homme.pack(side="left", padx=5)
+    radio_femme = ctk.CTkRadioButton(sexe_frame, text="Femme", variable=sexe_saisi, value=2)
+    radio_femme.pack(side="left", padx=5)
+
+# Configuration du grid pour un espacement uniforme
+    for i in range(4):  # 4 colonnes
+        controls_container.grid_columnconfigure(i, weight=1 if i == 3 else 0)
+
+
+# Frame "intérmédiaire" permettant de contenire les 2 autres frames
+    middle_container = ctk.CTkFrame(search_frame, corner_radius=0)
+    middle_container.pack(expand=True, fill="both", padx=10, pady=(0,10))  # pady=(0,10) pour un peu d'espace en bas
 
 # Frame gauche : Infos
-    frame_info = ctk.CTkFrame(main_frame, corner_radius=15)
+    frame_info = ctk.CTkFrame(middle_container, corner_radius=15)
     frame_info.pack(side="left", padx=10, pady=10, fill="both", expand=True, anchor="w")
     label_info = ctk.CTkLabel(frame_info, text="Informations sur le prénom", font=("Arial", 16, "bold"))
     label_info.pack(pady=5)
@@ -213,25 +280,11 @@ def gui(root, db_prenoms):
     stats_label.pack(pady=10, fill="both", expand=False)
 
 # Frame droite : Graphiques
-    frame_graphiques = ctk.CTkFrame(main_frame, corner_radius=15)
+    frame_graphiques = ctk.CTkFrame(middle_container, corner_radius=15)
     frame_graphiques.pack(side="left", padx=10, pady=10, fill="both", expand=True)
     label_graphiques = ctk.CTkLabel(frame_graphiques, text="Graphique du prénom", font=("Arial", 16, "bold"))
     label_graphiques.pack(pady=5)
 
-# Frame du bas avec contrôles
-    bottom_frame = ctk.CTkFrame(search_frame, corner_radius=15)
-    bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
-    nom_info = ctk.CTkLabel(bottom_frame, text="Nom sélectionné:", font=("Arial", 14))
-    nom_info.pack(side="left", padx=10, pady=5)
-
-# Configuration du genre
-    sexe_saisi = ctk.IntVar(value=1)
-    sexe_frame = ctk.CTkFrame(bottom_frame)
-    sexe_frame.pack(pady=5)
-    radio_homme = ctk.CTkRadioButton(sexe_frame, text="Homme", variable=sexe_saisi, value=1)
-    radio_homme.pack(side="left", padx=10)
-    radio_femme = ctk.CTkRadioButton(sexe_frame, text="Femme", variable=sexe_saisi, value=2)
-    radio_femme.pack(side="left", padx=10)
 
 # Récupération des prénoms existants
     conn = sqlite3.connect(db_prenoms)
@@ -287,33 +340,7 @@ def gui(root, db_prenoms):
         return prenoms_deja_etudies  # On retourne la structure mise à jour pour éviter les effets de bord
 
 
-    # Fonction déclenchée lors de la validation d’un prénom
-    def on_enter(event=None):
-        """
-        Gère l’ajout d’un prénom à la sélection lorsque l’utilisateur appuie sur Entrée.
-        Met à jour la liste des prénoms affichés et rafraîchit les graphiques et statistiques.
-        """
-        global naiss_rangs_deja_faits  # Pour conserver les résultats calculés précédemment
 
-        # Récupération du prénom et du sexe sélectionnés
-        prenom = search.get().upper()
-        sexe = sexe_saisi.get()
-        sexe_str = "masculin" if sexe == 1 else "féminin"
-
-        # Vérifie que le prénom est valide et n'a pas déjà été ajouté
-        if (prenom, sexe_str) not in prenoms_select and (prenom.upper(), sexe) in prenoms_sexe_existants:
-            # Ajoute au dictionnaire des prénoms avec une couleur aléatoire
-            prenoms_sexe_select[(prenom, sexe)] = f"#{randint(0x333333, 0xFFFFFF):06x}"
-            prenoms_select.append((prenom, sexe_str))
-
-        # Met à jour la liste déroulante des prénoms
-        prenoms_deja_select.configure(values=[f"{p} {s}" for p, s in prenoms_select])
-
-        # Met à jour le graphique avec le nouveau prénom
-        naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
-
-        # Met à jour les statistiques affichées
-        update_stats_display()
 
 
     # Fonction de retrait d’un prénom sélectionné
@@ -342,14 +369,6 @@ def gui(root, db_prenoms):
         global naiss_rangs_deja_faits
         naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
         update_stats_display()
-
-
-    # Zone de saisie du prénom
-    search = ctk.StringVar()
-    entry_custom = ctk.CTkEntry(bottom_frame, placeholder_text="Tape ton prénom ici...", textvariable=search, width=200)
-    entry_custom.pack(side="left", padx=10)
-    entry_custom.bind("<Return>", on_enter)
-
 
     # Zone de sélection des prénoms avec bouton de suppression
     zone_select_search = ctk.CTkFrame(frame_graphiques)
@@ -464,8 +483,10 @@ def gui(root, db_prenoms):
         update_suggestion()
 
     entry_custom.bind("<KeyRelease>", update_suggestion)
-    add_button = ctk.CTkButton(bottom_frame, text="Ajouter", command=on_enter)
-    add_button.pack(side="left", padx=10)
+    add_button = ctk.CTkButton(controls_container, text="Ajouter", command=on_enter, width=80)
+    add_button.grid(row=0, column=2, padx=(10,20), pady=5)
+
+
 
 #===============================================================================================================
 #                                           STATISTIQUES
@@ -673,15 +694,14 @@ def gui(root, db_prenoms):
     frame_tableau_fille = ctk.CTkFrame(master=classement_frame)
     frame_tableau_fille.pack(side='left', padx=10, pady=20, expand=True, fill='both')
     frame_tableau_garcon.pack(side='right', padx=10, pady=20, expand=True, fill='both')
+
     # boutons pour intéragir
     annees_possibles = [str(i) for i in range(1900, 2023)]
     selection_annee = ctk.CTkComboBox(master=classement_frame, values=annees_possibles)
     selection_annee.pack(pady=20)
-        
     selection_annee.bind('<<ComboboxSelected>>', lambda e: affiche_tableau_classement())
     classement_button = ctk.CTkButton(classement_frame, text="Afficher", command=lambda: affiche_tableau_classement())
     classement_button.pack(pady=20)
-
 
     def affiche_tableau_classement(event=None):
         '''
@@ -689,7 +709,7 @@ def gui(root, db_prenoms):
         '''
         annee_selectionnee = selection_annee.get()
         les_tops = classements(annee_selectionnee, db_prenoms)
-        print(les_tops)
+        #print(les_tops)
         liste_garcon = les_tops['masculin']
         liste_fille = les_tops['feminin']
         for i, ligne in enumerate(liste_fille):
@@ -700,6 +720,3 @@ def gui(root, db_prenoms):
             for j, case in enumerate(ligne):
                 label = ctk.CTkLabel(frame_tableau_garcon, text=case, width=100, anchor='center')
                 label.grid(row=i, column=j, padx=5, pady=5)
-
-
- 
