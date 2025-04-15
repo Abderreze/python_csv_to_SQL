@@ -7,36 +7,44 @@ from Utils.unzip import unzip_file
 
 def create_births_table(db_path):
     connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
+    try:
+        cursor = connection.cursor()
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS prenoms (
-            sexe INTEGER,
-            preusuel TEXT,
-            annais TEXT,
-            nombre INTEGER
-        )
-    """)
-    connection.commit()
-    connection.close()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS prenoms (
+                sexe INTEGER,
+                preusuel TEXT,
+                annais TEXT,
+                nombre INTEGER
+            )
+        """)
+    except Exception as e:
+        print(e)
+    finally:
+        connection.commit()
+        connection.close()
 
 def import_csv_sql_births(db_path, csv_file_path):
     connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
+    try:
+        cursor = connection.cursor()
 
-    with open(csv_file_path, 'r', encoding='UTF-8') as f:
-        csv_read = csv.reader(f, delimiter=';')
+        with open(csv_file_path, 'r', encoding='UTF-8') as f:
+            csv_read = csv.reader(f, delimiter=';')
 
-        next(csv_read)
+            next(csv_read)
 
-        for ligne in csv_read:
-            cursor.execute("""
-                INSERT INTO prenoms (sexe, preusuel, annais, nombre)
-                VALUES (?, ?, ?, ?)    
-            """, (int(ligne[0]), ligne[1], ligne[2], int(ligne[3])))
+            for ligne in csv_read:
+                cursor.execute("""
+                    INSERT INTO prenoms (sexe, preusuel, annais, nombre)
+                    VALUES (?, ?, ?, ?)    
+                """, (int(ligne[0]), ligne[1], ligne[2], int(ligne[3])))
+    except Exception as e:
+        print(e)
+    finally:
+       connection.commit()
+       connection.close()
 
-    connection.commit()
-    connection.close()
 
 
 

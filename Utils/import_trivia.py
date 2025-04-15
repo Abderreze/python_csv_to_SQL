@@ -7,37 +7,44 @@ import os
 
 def create_trivia_table(db_path):
     connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
+    try:
+        cursor = connection.cursor()
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS trivia (
-            prenom TEXT,
-            biographie TEXT,
-            origine TEXT,
-            funfact TEXT
-        )
-    """)
-    connection.commit()
-    connection.close()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS trivia (
+                prenom TEXT,
+                biographie TEXT,
+                origine TEXT,
+                funfact TEXT
+            )
+        """)
+    except Exception as e:
+        print(e)
+    finally:
+        connection.commit()
+        connection.close()
 
 
 def import_csv_sql_trivia(db_path, csv_file_path):
     connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
+    try:
+        cursor = connection.cursor()
 
-    with open(csv_file_path, 'r', encoding='UTF-8') as f:
-        csv_read = csv.reader(f, delimiter=',', quotechar='"')
+        with open(csv_file_path, 'r', encoding='UTF-8') as f:
+            csv_read = csv.reader(f, delimiter=',', quotechar='"')
 
-        next(csv_read)
+            next(csv_read)
 
-        for ligne in csv_read:
-            cursor.execute("""
-                INSERT INTO trivia (prenom, biographie, origine, funfact)
-                VALUES (?, ?, ?, ?)    
-            """, (ligne[0], ligne[1], ligne[2], ligne[3]))
-
-    connection.commit()
-    connection.close()
+            for ligne in csv_read:
+                cursor.execute("""
+                    INSERT INTO trivia (prenom, biographie, origine, funfact)
+                    VALUES (?, ?, ?, ?)    
+                """, (ligne[0], ligne[1], ligne[2], ligne[3]))
+    except Exception as e:
+        print(e)
+    finally:
+        connection.commit()
+        connection.close()
 
 def import_trivia_to_sql(db_path, data_dir, file_url):
     if file_url:

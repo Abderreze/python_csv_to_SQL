@@ -10,27 +10,31 @@ PATTERN = r"^([^*]*)(?:\*)([^\/]*)(?:\/)\s*(\d{1})(\d{8})([\dA-Z]{0,5})\s*([A-Z\
 
 def create_deaths_table(db_path):
     connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
+    try:
+        cursor = connection.cursor()
 
-    # Si doutes concernant le type des données, n'en ayez aucun, tout est fait pour marcher dans tous
-    # les cas qu'on risque de rencontrer
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS deces (
-        nom TEXT NOT NULL,
-        prenom TEXT NOT NULL,
-        sexe CHAR(1) CHECK (sexe IN ('H', 'F')),
-        date_naissance TEXT NOT NULL,
-        code_lieu_naissance TEXT NOT NULL,
-        commune_naissance TEXT NOT NULL,
-        pays_naissance TEXT NOT NULL,
-        date_deces TEXT NOT NULL,
-        code_lieu_deces TEXT NOT NULL,
-        numero_acte TEXT NOT NULL,
-        annee_deces TEXT NOT NULL
-    )
-    """)
-    connection.commit()
-    connection.close()
+        # Si doutes concernant le type des données, n'en ayez aucun, tout est fait pour marcher dans tous
+        # les cas qu'on risque de rencontrer
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS deces (
+            nom TEXT NOT NULL,
+            prenom TEXT NOT NULL,
+            sexe CHAR(1) CHECK (sexe IN ('H', 'F')),
+            date_naissance TEXT NOT NULL,
+            code_lieu_naissance TEXT NOT NULL,
+            commune_naissance TEXT NOT NULL,
+            pays_naissance TEXT NOT NULL,
+            date_deces TEXT NOT NULL,
+            code_lieu_deces TEXT NOT NULL,
+            numero_acte TEXT NOT NULL,
+            annee_deces TEXT NOT NULL
+        )
+        """)
+    except Exception as e:
+        print(e)
+    finally:
+        connection.commit()
+        connection.close()
 
 def gen_deces_csv(input_path, output_path):
 
@@ -65,20 +69,23 @@ def gen_deces_csv(input_path, output_path):
 
 def import_csv_to_db(db_path, input_file):
     connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
+    try:
+        cursor = connection.cursor()
 
-    with open(input_file, mode='r', encoding="UTF-8") as csvfile:
-        csv_reader = csv.reader(csvfile)
-        next(csv_reader)
+        with open(input_file, mode='r', encoding="UTF-8") as csvfile:
+            csv_reader = csv.reader(csvfile)
+            next(csv_reader)
 
-        for row in csv_reader:
-            cursor.execute("""
-                INSERT INTO deces (nom, prenom, sexe, date_naissance, code_lieu_naissance, commune_naissance, pays_naissance, date_deces, code_lieu_deces, numero_acte, annee_deces)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, row)
-
-    connection.commit()
-    connection.close()
+            for row in csv_reader:
+                cursor.execute("""
+                    INSERT INTO deces (nom, prenom, sexe, date_naissance, code_lieu_naissance, commune_naissance, pays_naissance, date_deces, code_lieu_deces, numero_acte, annee_deces)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, row)
+    except Exception as e:
+        print(e)
+    finally:
+        connection.commit()
+        connection.close()
 
 def import_deaths_to_sql(db_path, data_dir, file_urls, first_year):
     create_deaths_table(db_path)
