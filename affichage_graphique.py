@@ -156,7 +156,8 @@ def gui(root, db_prenoms):
         text="Dark-mode",
         text_color="white",
         anchor="center",
-        justify="center"
+        justify="center",
+        font=("", 11)
     )
     switch_label.pack()
 
@@ -189,8 +190,7 @@ def gui(root, db_prenoms):
     label_bonjour = ctk.CTkLabel(
         title_frame,
         text="Prénomator 3000 EXTRA MAX V2.0",
-        font=("Arial", 35, "bold"),
-        text_color="#4CC9F0"
+        font=("Arial", 35, "bold")
     )
     label_bonjour.pack()
     update_title_color()
@@ -220,7 +220,6 @@ def gui(root, db_prenoms):
     # Activer le scroll quand la souris est sur la scrollframe
     scroll_frame.bind("<Enter>", _bound_to_mousewheel)
     scroll_frame.bind("<Leave>", _unbound_to_mousewheel)
-
 
     # Section d'explication avec des cartes modernes
     def create_info_card(title, content):
@@ -264,7 +263,7 @@ def gui(root, db_prenoms):
     )
 
     # Liste des fonctionnalités avec icônes
-    features_frame = ctk.CTkFrame(scroll_frame, fg_color="transparent")
+    features_frame = ctk.CTkFrame(scroll_frame)
     features_frame.pack(fill="x", pady=5)
 
     # Icônes pour chaque fonctionnalité
@@ -281,7 +280,7 @@ def gui(root, db_prenoms):
     ]
 
     for i, (title, desc, icon) in enumerate(features):
-        feature_card = ctk.CTkFrame(features_frame, fg_color="#1a1a1a", corner_radius=10)
+        feature_card = ctk.CTkFrame(features_frame, corner_radius=10)
         feature_card.pack(fill="x", pady=5)
 
         # Icône
@@ -294,8 +293,7 @@ def gui(root, db_prenoms):
         ctk.CTkLabel(
             text_frame,
             text=title,
-            font=("Arial", 16, "bold"),
-            text_color="#4361EE"
+            font=("Arial", 16, "bold")
         ).pack(anchor="w")
 
         ctk.CTkLabel(
@@ -321,14 +319,13 @@ def gui(root, db_prenoms):
     contributors_label.pack(pady=10)
 
     # Note sur le dark mode
-    dark_mode_note = ctk.CTkFrame(scroll_frame, fg_color="#1a1a1a", corner_radius=10)
+    dark_mode_note = ctk.CTkFrame(scroll_frame, corner_radius=10)
     dark_mode_note.pack(fill="x", pady=20)
 
     ctk.CTkLabel(
         dark_mode_note,
         text="💡 Astuce : Vous pouvez ajuster le mode sombre/clair avec le switch dans la barre latérale",
         font=("Arial", 14, "italic"),
-        text_color="#4CC9F0"
     ).pack(pady=10, padx=10)
 #===============================================================================================================
 #                                           SEARCH
@@ -969,4 +966,3 @@ def gui(root, db_prenoms):
             label.configure(text="Cette année est impossible, elle doit être entre 1900 et 2022 et sous forme décimale",
                             font=('Arial', 24),
                             text_color='#ff0000')
-
