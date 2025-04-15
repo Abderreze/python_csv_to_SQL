@@ -197,28 +197,30 @@ def gui(root, db_prenoms):
     scroll_frame = ctk.CTkScrollableFrame(home_content, fg_color="transparent")
     scroll_frame.pack(expand=True, fill="both", padx=5, pady=5)
 
-    # Fonction de gestion du scroll
-    def _bound_to_mousewheel(event):
-        scroll_frame._parent_canvas.bind_all("<MouseWheel>", _on_mousewheel) # Windows et Linux
-        scroll_frame._parent_canvas.bind_all("<Button-4>", _on_mousewheel)  # Linux up
-        scroll_frame._parent_canvas.bind_all("<Button-5>", _on_mousewheel)  # Linux down
+    # Remplace "sidebar" par le nom réel de ta sidebar s’il est différent
+    def _global_mousewheel(event):
+        x, y = event.x_root, event.y_root
+        widget_under_mouse = home_frame.winfo_containing(x, y)
 
-    def _unbound_to_mousewheel(event):
-        scroll_frame._parent_canvas.unbind_all("<MouseWheel>")
-        scroll_frame._parent_canvas.unbind_all("<Button-4>")
-        scroll_frame._parent_canvas.unbind_all("<Button-5>")
+        # Ne pas scroller si la souris est sur la sidebar
+        if widget_under_mouse and str(widget_under_mouse).startswith(str(sidebar)):
+            return
 
-    def _on_mousewheel(event):
-        if event.num == 4:  # Linux scroll up
+        # Sinon, scroller le scroll_frame
+        if event.num == 4:
             scroll_frame._parent_canvas.yview_scroll(-1, "units")
-        elif event.num == 5:  # Linux scroll down
+        elif event.num == 5:
             scroll_frame._parent_canvas.yview_scroll(1, "units")
-        else:  # Windows & MacOS
-            scroll_frame._parent_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        else:
+            scroll_frame._parent_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-    # Activer le scroll quand la souris est sur la scrollframe
-    scroll_frame.bind("<Enter>", _bound_to_mousewheel)
-    scroll_frame.bind("<Leave>", _unbound_to_mousewheel)
+    # Binds globaux pour capter le scroll dans toute la zone home
+    root = home_frame.winfo_toplevel()
+    root.bind("<MouseWheel>", _global_mousewheel)
+    root.bind("<Button-4>", _global_mousewheel)
+    root.bind("<Button-5>", _global_mousewheel)
+
+
 
     # Fonction générique pour créer des icônes dans des frames
     def create_icon_frame(parent, icon_path, size=(100, 100), text=""):
