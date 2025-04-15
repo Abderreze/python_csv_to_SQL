@@ -1,4 +1,5 @@
 import os #permet la vérification de si c'est un windows ou autre
+import sys
 import customtkinter as ctk
 import sqlite3
 import matplotlib #librairie permettant la création de graphe
@@ -19,6 +20,16 @@ def gui(root, db_prenoms):
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("dark-blue")
     root.title("Prénomator 3000 EXTRA MAX V2.0")
+    # Définition de l'icône
+    try:
+        icon_img = Image.open(resource_path("Icons/prenomator.png"))
+        icon_photo = ImageTk.PhotoImage(icon_img)
+        root.iconphoto(True, icon_photo)
+        # Garder les références
+        root.tk.call('wm', 'iconphoto', root._w, icon_photo)
+    except Exception as e:
+        print(f"Impossible de charger l'icône : {e}")
+
 
     # Création de la fenêtre définie par défaut en fullscreen
     main_container = ctk.CTkFrame(root, corner_radius=0)
@@ -220,8 +231,6 @@ def gui(root, db_prenoms):
     root.bind("<Button-4>", _global_mousewheel)
     root.bind("<Button-5>", _global_mousewheel)
 
-
-
     # Fonction générique pour créer des icônes dans des frames
     def create_icon_frame(parent, icon_path, size=(100, 100), text=""):
         try:
@@ -231,8 +240,8 @@ def gui(root, db_prenoms):
             # Créez le frame conteneur
             icon_frame = ctk.CTkFrame(
                 parent,
-                width=size[0]+20,
-                height=size[1]+20,
+                width=size[0]+7,
+                height=size[1],
                 corner_radius=10,
                 fg_color="transparent"  # Adapte la couleur au dark/light mode
             )
