@@ -980,6 +980,7 @@ def gui(root, db_prenoms):
     selection_annee = ctk.CTkEntry(master=frame_selection, textvariable=annees_possibles)
     selection_annee.grid(row=0, column=0, padx=20)
 
+    selection_annee.bind("<Return>", lambda event: affiche_tableau_classement())
     # Bouton pour afficher les résultats
     classement_button = ctk.CTkButton(frame_selection, text="Afficher", command=lambda: affiche_tableau_classement())
     classement_button.grid(row=0, column=1, padx=20)
@@ -1055,7 +1056,7 @@ def gui(root, db_prenoms):
                 # Définition des couleurs spéciales pour les 3 premières places
                 couleurs_classement = {
                     1: '#fcb434',  # Or
-                    2: '#d7d7d7',  # Argent
+                    2: '#888888',  # Argent
                     3: '#a77044'   # Bronze
                 }
 
@@ -1074,7 +1075,7 @@ def gui(root, db_prenoms):
                             width=100,
                             anchor='center',
                             font=("Arial", 24),
-                            text_color=couleurs_classement.get(i, '#ffffff')  # Couleur spéciale pour les 3 premiers
+                            text_color=couleurs_classement.get(i, None)  # Couleur spéciale pour les 3 premiers
                         )
                         label.grid(row=i, column=j, padx=5, pady=5, sticky='nsew')
 
@@ -1087,7 +1088,7 @@ def gui(root, db_prenoms):
                             width=100,
                             anchor='center',
                             font=("Arial", 24),
-                            text_color=couleurs_classement.get(i, '#ffffff')
+                            text_color=couleurs_classement.get(i, None)
                         )
                         label.grid(row=i, column=j, padx=5, pady=5, sticky='nsew')
 
