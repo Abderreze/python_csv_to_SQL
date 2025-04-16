@@ -823,7 +823,7 @@ def gui(root, db_prenoms):
     evolution_prenom_var = ctk.StringVar()
     evolution_entry = ctk.CTkEntry(evolution_controls, textvariable=evolution_prenom_var, placeholder_text="Tape ton prénom ici...", width=200)
     evolution_entry.pack(side="left", padx=10)
-
+    evolution_entry.bind('<Return>', lambda event: afficher_graphe_evolution(db_prenoms, les_prenoms_annees_XXXX, prenoms_sexe_existants))
     # Simule une Listbox avec un CTkFrame + CTkButtons
     autocomplete_frame = ctk.CTkFrame(evolution_controls, corner_radius=8)
     autocomplete_frame.pack_forget()
@@ -859,12 +859,12 @@ def gui(root, db_prenoms):
     evolution_radio_h.pack(side="left", padx=5)
     evolution_radio_f = ctk.CTkRadioButton(evolution_controls, text="Femme", variable=evolution_sexe_var, value=2)
     evolution_radio_f.pack(side="left", padx=5)
-    evolution_button = ctk.CTkButton(evolution_controls, text="Afficher", command=lambda: afficher_graphe_evolution(db_prenoms))
+    evolution_button = ctk.CTkButton(evolution_controls, text="Afficher", command=lambda: afficher_graphe_evolution(db_prenoms, les_prenoms_annees_XXXX, prenoms_sexe_existants))
     evolution_button.pack(side="left", padx=10)
     evolution_graph_frame = ctk.CTkFrame(evolution_frame, corner_radius=15)
     evolution_graph_frame.pack(expand=True, fill="both", padx=20, pady=10)
 
-    def afficher_graphe_evolution(db_path):
+    def afficher_graphe_evolution(db_path, prenoms_manque_donnees, prenoms_sexe_existants):
         """
         Affiche un graphique représentant l'évolution de la différence entre
         le nombre de naissances et de décès d'un prénom donné, ainsi que sa dérivée.
@@ -882,7 +882,38 @@ def gui(root, db_prenoms):
         # Si aucun prénom n'est saisi, on quitte la fonction
         if not prenom:
             return
+        if prenom in prenoms_manque_donnees:
+
+                popup = ctk.CTkToplevel()
+                popup.title("Attention")
+                popup.geometry("300x150")
+                limite_label = ctk.CTkLabel(
+                    popup,
+                    text=f"Trop peu d'information sur le prénom {prenom} pour tracer un graphe",
+                    text_color="red",
+                    font=("Arial", 12)
+                )
+                limite_label.pack(pady=20)
+
+                bouton_fermer = ctk.CTkButton(popup, text="Fermer", command=popup.destroy)
+                bouton_fermer.pack(pady=10)
+                return
         # Masquer et nettoyer la zone d'autocomplétion
+        if (prenom, sexe) not in prenoms_sexe_existants:
+                sexe_str = "masculin" if int(sexe) == 1 else "féminin"
+                popup = ctk.CTkToplevel()
+                popup.title("Attention")
+                popup.geometry("300x150")
+                limite_label = ctk.CTkLabel(
+                    popup,
+                    text=f"Le prénom {prenom} n'est pas associé au sexe {sexe_str} dans la base de donnée.",
+                    font=("Arial", 12)
+                )
+                limite_label.pack(pady=20)
+
+                bouton_fermer = ctk.CTkButton(popup, text="Fermer", command=popup.destroy)
+                bouton_fermer.pack(pady=10)
+                return
         autocomplete_frame.pack_forget()
         for widget in autocomplete_frame.winfo_children():
             widget.destroy()
