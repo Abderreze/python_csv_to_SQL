@@ -20,6 +20,7 @@ def gui(root, db_prenoms):
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("dark-blue")
     root.title("Prénomator 3000 EXTRA MAX V2.0")
+
     # Définition de l'icône
     try:
         icon_img = Image.open(resource_path("Icons/prenomator.png"))
@@ -371,7 +372,7 @@ def gui(root, db_prenoms):
 # Titre clignotant pour l'onglet Search
     title_frame_search = ctk.CTkFrame(search_frame, fg_color="transparent")
     title_frame_search.pack(pady=(0, 20))
-
+    
     def update_title_color_search():
         colors = ["#4CC9F0", "#F72585", "#7209B7", "#3A0CA3", "#4361EE"]
         current_color = colors[randint(0, len(colors))-1]
@@ -397,45 +398,88 @@ def gui(root, db_prenoms):
 
     nom_info = ctk.CTkLabel(controls_container, text="Nom sélectionné:", font=("Arial", 14))
     nom_info.grid(row=0, column=0, padx=(0,10), pady=5, sticky="e")
+# Récupération de tous les prénoms dont la seule année connu dans la bdd est 'XXXX', pour éviter des erreurs lors des graphes
+    conn = sqlite3.connect(db_prenoms)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT preusuel 
+        FROM prenoms
+        GROUP BY preusuel
+        HAVING COUNT(DISTINCT annais) = 1 AND MAX(annais) = 'XXXX';
+    """)
+    les_prenoms_annees_XXXX = [uplet[0] for uplet in cursor.fetchall()]
+    conn.close()
 
     # Fonction déclenchée lors de la validation d’un prénom
-    def on_enter(event=None):
+    def on_enter(prenoms_manque_donnees, event=None):
         """
         Gère l’ajout d’un prénom à la sélection lorsque l’utilisateur appuie sur Entrée.
         Met à jour la liste des prénoms affichés et rafraîchit les graphiques et statistiques.
         """
         global naiss_rangs_deja_faits
+
         prenom = search.get().upper()
         sexe = sexe_saisi.get()
         sexe_str = "masculin" if sexe == 1 else "féminin"
+        if prenom in prenoms_manque_donnees:
+            popup = ctk.CTkToplevel()
+            popup.title("Attention")
+            popup.geometry("300x150")
+            label = ctk.CTkLabel(popup, text=f"Trop peu d'information sur le prénom {prenom} pour tracer un graphe", font=('Arial', 12))
+            label.pack(pady=20)
 
+            bouton_fermer = ctk.CTkButton(popup, text="Fermer", command=popup.destroy)
+            bouton_fermer.pack(pady=10)
+            return 
+        else:
         # Vérifier si la limite est atteinte (ex: 5 prénoms max)
-        if len(prenoms_select) >= 5:
-            limite_label = ctk.CTkLabel(
-                frame_graphiques,
-                text="⚠ Limite de 5 prénoms atteinte !",
-                text_color="red",
-                font=("Arial", 12)
-            )
-            limite_label.pack(pady=5)
-            return
+            if len(prenoms_select) >= 5:
 
-        # Vérifier que le prénom est valide et n'a pas déjà été ajouté
-        if (prenom, sexe_str) not in prenoms_select and (prenom.upper(), sexe) in prenoms_sexe_existants:
-            prenoms_sexe_select[(prenom, sexe)] = f"#{randint(0x333333, 0xFFFFFF):06x}"
-            prenoms_select.append((prenom, sexe_str))
+                popup = ctk.CTkToplevel()
+                popup.title("Attention")
+                popup.geometry("300x150")
+                limite_label = ctk.CTkLabel(
+                    popup,
+                    text="⚠ Limite de 5 prénoms atteinte !",
+                    text_color="red",
+                    font=("Arial", 12)
+                )
+                limite_label.pack(pady=20)
 
-        # Mettre à jour l'affichage
-        prenoms_deja_select.configure(values=[f"{p} {s}" for p, s in prenoms_select])
-        naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
-        update_stats_display()
-        search.set("")  # Vide le champ de saisie après ajout
+                bouton_fermer = ctk.CTkButton(popup, text="Fermer", command=popup.destroy)
+                bouton_fermer.pack(pady=10)
+                return
+
+            # Vérifier que le prénom est valide et n'a pas déjà été ajouté
+            if (prenom, sexe_str) not in prenoms_select and (prenom.upper(), sexe) in prenoms_sexe_existants:
+                prenoms_sexe_select[(prenom, sexe)] = f"#{randint(0x333333, 0xFFFFFF):06x}"
+                prenoms_select.append((prenom, sexe_str))
+            else:
+
+                popup = ctk.CTkToplevel()
+                popup.title("Attention")
+                popup.geometry("300x150")
+                limite_label = ctk.CTkLabel(
+                    popup,
+                    text=f"Le prénom {prenom} n'est pas associé au sexe {sexe_str} dans la base de donnée.",
+                    font=("Arial", 12)
+                )
+                limite_label.pack(pady=20)
+
+                bouton_fermer = ctk.CTkButton(popup, text="Fermer", command=popup.destroy)
+                bouton_fermer.pack(pady=10)
+                return
+            # Mettre à jour l'affichage
+            prenoms_deja_select.configure(values=[f"{p} {s}" for p, s in prenoms_select])
+            naiss_rangs_deja_faits = afficher_graphique(prenoms_sexe_select, naiss_rangs_deja_faits)
+            update_stats_display()
+            search.set("")  # Vide le champ de saisie après ajout
 
     # Zone de saisie du prénom
     search = ctk.StringVar()
     entry_custom = ctk.CTkEntry(controls_container, placeholder_text="Tape ton prénom ici...", textvariable=search, width=200)
     entry_custom.grid(row=0, column=1, padx=10, pady=5)
-    entry_custom.bind("<Return>", on_enter)
+    entry_custom.bind("<Return>", lambda event: on_enter(les_prenoms_annees_XXXX, event=None))
 
     # Configuration du genre
     sexe_frame = ctk.CTkFrame(controls_container, fg_color="transparent")
@@ -691,7 +735,7 @@ def gui(root, db_prenoms):
         update_suggestion()
 
     entry_custom.bind("<KeyRelease>", update_suggestion)
-    add_button = ctk.CTkButton(controls_container, text="Ajouter", command=on_enter, width=80)
+    add_button = ctk.CTkButton(controls_container, text="Ajouter", command=lambda: on_enter(les_prenoms_annees_XXXX, event=None), width=80)
     add_button.grid(row=0, column=4, padx=(10,20), pady=5)
 
 #===============================================================================================================
